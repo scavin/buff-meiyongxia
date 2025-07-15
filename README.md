@@ -2,12 +2,14 @@
 
 🧬 基于科学研究的生命值优化工具，采用超简洁URL编码方案。
 
-官网：https://buff.meiyongxia.com
+![](https://raw.githubusercontent.com/scavin/buff-meiyongxia/refs/heads/main/demo.webp)
+
+官网：https://buff.meiyongxia.com  
 项目地址：https://github.com/scavin/buff-meiyongxia
 
 ## 功能特点
 
-- 基于顶级期刊论文的健康优化建议
+- 基于顶级期刊论文的健康优化建议([程序员延寿指南](https://github.com/geekan/HowToLiveLonger))
 - 支持数据分享和二维码生成
 - 超简洁URL编码，大幅减少链接长度
 - 纯前端实现，无需后端服务
@@ -91,8 +93,6 @@ cp index.html config.js /var/www/html/
 4. **开源透明**: 所有代码公开，算法可验证
 5. **智能压缩**: 自动去除末尾零值，最大化效率
 
-## 灵感来源
-
-https://github.com/geekan/HowToLiveLonger
+---
 
 让代码像生命一样优雅！
