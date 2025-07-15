@@ -25,13 +25,8 @@ const PARAM_MAP = {
     'q': 'weight-management' // 体重管理 (0-4)
 };
 
-// 反向映射
-const REVERSE_MAP = Object.fromEntries(
-    Object.entries(PARAM_MAP).map(([key, value]) => [value, key])
-);
-
-// 新的超简洁编码函数 - 使用定长编码
-function generateCompactShareId() {
+// 生成分享ID - 定长编码
+function generateShareId() {
     let result = '';
     
     // 按字母顺序处理所有参数，用单个字符表示等级
@@ -54,8 +49,8 @@ function generateCompactShareId() {
     return result || '0'; // 如果没有任何设置，返回'0'
 }
 
-// 解码函数 - 定长解码
-function decodeCompactShareId(shareId) {
+// 解码分享ID - 定长解码
+function decodeShareId(shareId) {
     const data = {};
     
     if (shareId === '0') {
@@ -87,27 +82,9 @@ function decodeCompactShareId(shareId) {
     return data;
 }
 
-// 向后兼容的解码函数
-function decodeShareId(shareId) {
-    // 新格式：定长简洁编码 (如 "53502000")
-    if (/^[0-9a-z]*$/.test(shareId) && shareId.length <= 17) {
-        return decodeCompactShareId(shareId);
-    }
-    
-    // 旧格式：base64编码
-    try {
-        const restored = shareId.replace(/-/g, '+').replace(/_/g, '/');
-        const padded = restored + '=='.slice(0, (4 - restored.length % 4) % 4);
-        return JSON.parse(atob(padded));
-    } catch (e) {
-        console.error('Failed to decode share ID:', e);
-        return {};
-    }
-}
-
 // 检查是否在浏览器环境中
 if (typeof window !== 'undefined') {
     window.CONFIG = CONFIG;
-    window.generateCompactShareId = generateCompactShareId;
+    window.generateShareId = generateShareId;
     window.decodeShareId = decodeShareId;
 }
