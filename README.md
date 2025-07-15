@@ -2,6 +2,9 @@
 
 🧬 基于科学研究的生命值优化工具，采用超简洁URL编码方案。
 
+官网：https://buff.meiyongxia.com
+项目地址：https://github.com/scavin/buff-meiyongxia
+
 ## 功能特点
 
 - 基于顶级期刊论文的健康优化建议
@@ -87,5 +90,9 @@ cp index.html config.js /var/www/html/
 3. **无需API**: 纯前端实现，无外部依赖
 4. **开源透明**: 所有代码公开，算法可验证
 5. **智能压缩**: 自动去除末尾零值，最大化效率
+
+## 灵感来源
+
+https://github.com/geekan/HowToLiveLonger
 
 让代码像生命一样优雅！
