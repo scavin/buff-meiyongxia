@@ -30,27 +30,31 @@ const REVERSE_MAP = Object.fromEntries(
     Object.entries(PARAM_MAP).map(([key, value]) => [value, key])
 );
 
-// 新的超简洁编码函数
+// 新的超简洁编码函数 - 使用定长编码
 function generateCompactShareId() {
     let result = '';
     
-    // 按字母顺序处理参数
+    // 按字母顺序处理所有参数，用单个字符表示等级
     for (let letter of 'abcdefghijklmnopq') {
         const actionName = PARAM_MAP[letter];
         const slider = document.querySelector(`[data-action="${actionName}"]`);
         
         if (slider) {
             const value = parseInt(slider.value);
-            if (value > 0) {
-                result += letter + value;
-            }
+            // 使用0-9表示等级0-9，超过9用a-z表示（实际上健康参数最多8个等级）
+            result += value <= 9 ? value.toString() : String.fromCharCode(87 + value); // 87 = 'a'.charCodeAt(0) - 10
+        } else {
+            result += '0'; // 默认值
         }
     }
+    
+    // 去掉末尾的0，进一步压缩
+    result = result.replace(/0+$/, '');
     
     return result || '0'; // 如果没有任何设置，返回'0'
 }
 
-// 解码函数
+// 解码函数 - 定长解码
 function decodeCompactShareId(shareId) {
     const data = {};
     
@@ -58,17 +62,26 @@ function decodeCompactShareId(shareId) {
         return data; // 空数据
     }
     
-    // 解析格式如 "a3b2c5" 
-    const matches = shareId.match(/([a-q])(\d)/g);
-    if (matches) {
-        matches.forEach(match => {
-            const letter = match[0];
-            const value = parseInt(match[1]);
-            const actionName = PARAM_MAP[letter];
-            if (actionName) {
+    // 定长解码：每个位置对应一个参数
+    const letters = 'abcdefghijklmnopq';
+    for (let i = 0; i < Math.min(shareId.length, 17); i++) {
+        const char = shareId[i];
+        const letter = letters[i];
+        const actionName = PARAM_MAP[letter];
+        
+        if (actionName) {
+            let value;
+            if (char >= '0' && char <= '9') {
+                value = parseInt(char);
+            } else {
+                // 扩展字符支持（虽然当前不需要）
+                value = char.charCodeAt(0) - 87; // 'a'.charCodeAt(0) - 10
+            }
+            
+            if (value > 0) {
                 data[actionName] = value;
             }
-        });
+        }
     }
     
     return data;
@@ -76,8 +89,8 @@ function decodeCompactShareId(shareId) {
 
 // 向后兼容的解码函数
 function decodeShareId(shareId) {
-    // 新格式：简洁编码 (如 "a3b2c5")
-    if (/^[a-q0-9]*$/.test(shareId)) {
+    // 新格式：定长简洁编码 (如 "53502000")
+    if (/^[0-9a-z]*$/.test(shareId) && shareId.length <= 17) {
         return decodeCompactShareId(shareId);
     }
     
