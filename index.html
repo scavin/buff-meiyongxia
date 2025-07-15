@@ -2232,7 +2232,7 @@ ${shareUrl}
             const font = "'Microsoft YaHei', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace";
 
             canvas.width = 800;
-            canvas.height = 1100; // 增加高度以容纳链接
+            canvas.height = 1300; // 增加高度以容纳更多习惯和链接
 
             function drawGlowText(text, x, y, size, color, glowColor, blur) {
                 ctx.font = `${size}px ${font}`;
@@ -2260,9 +2260,8 @@ ${shareUrl}
                 }
             }
 
-            // 生成分享URL
-            const shareId = generateShareId();
-            const shareUrl = `https://buff.meiyongxia.com?s=${shareId}`;
+            // 使用主页URL
+            const shareUrl = `https://buff.meiyongxia.com`;
 
             // 绘制背景
             ctx.fillStyle = '#0D1117';
@@ -2361,10 +2360,10 @@ ${shareUrl}
                 }
             });
             habits.sort((a, b) => b.benefit - a.benefit);
-            const topHabits = habits.slice(0, 4);
+            const topHabits = habits.slice(0, 6);
 
             topHabits.forEach((habit, index) => {
-                const y = 580 + index * 70;
+                const y = 580 + index * 60;
                 ctx.fillStyle = 'rgba(0, 255, 0, 0.05)';
                 ctx.fillRect(50, y - 30, canvas.width - 100, 60);
                 
@@ -2385,7 +2384,7 @@ ${shareUrl}
             });
 
             // 底部信息和二维码区域 - 居中布局
-            const bottomY = canvas.height - 280; // 进一步增加底部空间
+            const bottomY = canvas.height - 200; // 调整底部空间
             
             ctx.textAlign = 'center';
             ctx.font = `16px ${font}`;
@@ -2440,9 +2439,8 @@ ${shareUrl}
                         // 计算链接位置，确保在图片范围内
                         const linkY = qrY + qrSize + 35;
                         if (linkY < canvas.height - 40) {
-                            // 如果链接太长，智能截断
-                            const displayUrl = shareUrl.length > 45 ? shareUrl.substring(0, 45) + '...' : shareUrl;
-                            ctx.fillText(displayUrl, canvas.width / 2, linkY);
+                            // 显示主页链接
+                            ctx.fillText(shareUrl, canvas.width / 2, linkY);
                         }
                         
                         // 在底部添加Meiyongxia字样
@@ -2487,9 +2485,8 @@ ${shareUrl}
                 
                 const linkY = bottomY + 80;
                 if (linkY < canvas.height - 40) {
-                    // 如果链接太长，智能截断
-                    const displayUrl = shareUrl.length > 60 ? shareUrl.substring(0, 60) + '...' : shareUrl;
-                    ctx.fillText(displayUrl, canvas.width / 2, linkY);
+                    // 显示主页链接
+                    ctx.fillText(shareUrl, canvas.width / 2, linkY);
                 }
                 
                 // 在底部添加Meiyongxia字样
