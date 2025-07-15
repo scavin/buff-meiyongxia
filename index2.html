@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>程序员延寿计算器 | Programmer Longevity Calculator</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧬</text></svg>">
-    <script src="config.js"></script>
-    <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -52,46 +50,32 @@
         }
 
         .results {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: rgba(12, 12, 12, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 2px solid #00ff00;
-            box-shadow: 0 2px 20px rgba(0, 255, 0, 0.3);
-            padding: 15px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-        }
-
-        .results-spacer {
-            height: 200px; /* 为固定结果区域预留空间 */
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
         }
 
         .result-card {
             background: rgba(0, 255, 0, 0.1);
             border: 1px solid #00ff00;
             border-radius: 8px;
-            padding: 15px 10px;
+            padding: 20px 15px;
             text-align: center;
             transition: all 0.3s ease;
-            min-height: 100px;
+            min-height: 140px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            backdrop-filter: blur(5px);
         }
 
         .result-card:hover {
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-            transform: translateY(-2px);
+            transform: translateY(-5px);
         }
 
         .result-value {
-            font-size: 2.2em;
+            font-size: 3em;
             font-weight: bold;
             color: #00ff41;
             text-shadow: 0 0 15px rgba(0, 255, 65, 0.8);
@@ -99,25 +83,19 @@
         }
 
         #health-level {
-            font-size: 1.4em !important;
+            font-size: 1.8em !important;
             line-height: 1.2;
         }
 
         .result-label {
-            font-size: 1em;
-            margin-top: 8px;
+            font-size: 1.2em;
+            margin-top: 10px;
             color: #ccc;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            transition: all 0.3s ease;
-        }
-        
-        .result-card.expanded .result-label {
-            flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .level-description {
@@ -134,44 +112,49 @@
             font-size: 0.9em;
             user-select: none;
             transition: all 0.3s ease;
-            padding: 4px;
-            border-radius: 50%;
         }
 
         .tooltip-icon:hover {
             color: #ffffff;
-            background: rgba(0, 255, 65, 0.2);
             text-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
         }
 
-        .tooltip-content {
-            display: none;
-            background: rgba(0, 255, 0, 0.05);
-            border: 1px solid #00ff00;
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: #ffffff;
+            padding: 15px;
             border-radius: 8px;
-            padding: 12px;
-            margin-top: 8px;
-            font-size: 0.8em;
+            border: 1px solid #00ff00;
+            font-size: 0.85em;
             line-height: 1.4;
-            color: #ccc;
-            max-width: 100%;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .result-card.expanded .tooltip-content {
-            display: block;
-        }
-        
-        .result-card.expanded {
-            transform: scale(1.05);
-            min-height: auto;
-            padding: 20px 15px;
-            z-index: 10;
+            width: 300px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            pointer-events: none;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #00ff00;
+        }
+
+        .tooltip-icon:hover .tooltip,
+        .tooltip-icon:focus .tooltip,
+        .tooltip-icon.active .tooltip {
+            opacity: 1;
+            visibility: visible;
         }
 
         .categories {
@@ -365,63 +348,21 @@
 
         .achievement {
             position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: linear-gradient(135deg, rgba(0, 255, 0, 0.95), rgba(0, 204, 0, 0.95));
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 215, 0, 0.9);
             color: #000;
-            padding: 12px 20px;
-            border-radius: 25px;
+            padding: 15px 20px;
+            border-radius: 8px;
             font-weight: bold;
-            transition: all 0.5s ease;
-            z-index: 102;
-            border: 2px solid #00ff00;
-            box-shadow: 0 4px 20px rgba(0, 255, 0, 0.6);
-            backdrop-filter: blur(10px);
-            font-size: 0.9em;
-            text-align: center;
-            max-width: 300px;
-            opacity: 0;
-            pointer-events: none;
+            transform: translateX(400px);
+            transition: transform 0.5s ease;
+            z-index: 1000;
+            border: 2px solid #ffd700;
         }
 
         .achievement.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .achievement::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, #00ff00, #00cc00, #00aa00, #00ff00);
-            background-size: 400% 400%;
-            border-radius: 27px;
-            z-index: -1;
-            animation: gradientMove 3s ease infinite;
-        }
-
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* 给成就通知添加图标动画 */
-        .achievement-icon {
-            display: inline-block;
-            margin-right: 6px;
-            animation: bounce 0.6s ease-in-out;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
+            transform: translateX(0);
         }
 
         .warning {
@@ -443,17 +384,17 @@
         }
 
         .share-container {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 101;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         .share-btn {
-            background: linear-gradient(135deg, #2196F3, #1976D2);
-            color: #fff;
-            border: 2px solid #2196F3;
+            background: linear-gradient(135deg, #00ff00, #00cc00);
+            color: #000;
+            border: none;
             padding: 12px 20px;
             border-radius: 25px;
             font-weight: bold;
@@ -464,14 +405,12 @@
             align-items: center;
             gap: 8px;
             text-decoration: none;
-            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
         }
 
         .share-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(33, 150, 243, 0.6);
-            background: linear-gradient(135deg, #1976D2, #1565C0);
-            border-color: #1976D2;
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
+            background: linear-gradient(135deg, #00cc00, #00aa00);
         }
 
         .share-modal {
@@ -505,8 +444,6 @@
                 linear-gradient(rgba(0, 255, 0, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 255, 0, 0.05) 1px, transparent 1px);
             background-size: 20px 20px;
-            box-sizing: border-box;
-            overflow: hidden;
         }
         
         .close-modal {
@@ -676,14 +613,7 @@
             border-radius: 4px;
             background: rgba(0, 255, 65, 0.1);
             margin-top: 10px;
-            display: block;
-            width: fit-content;
-            max-width: 100%;
-            margin-left: auto;
-            margin-right: auto;
-            word-break: break-all;
-            text-align: center;
-            overflow-wrap: break-word;
+            display: inline-block;
         }
         
         .share-footer-new .link:hover {
@@ -741,27 +671,18 @@
             padding: 40px;
             text-align: center;
         }
-        
-        #qr-code-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        #qr-code-container #qrcode {
+        #qr-code-container img {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
             border: 4px solid #00ff41;
             padding: 10px;
             background: #fff;
-            border-radius: 8px;
         }
-        
         #qr-code-container p {
             color: #ccc;
+            margin-top: 20px;
             font-size: 1.1em;
-            word-break: break-all;
-            overflow-wrap: break-word;
-            max-width: 90%;
         }
 
         .footer-info {
@@ -771,7 +692,6 @@
             border-top: 1px solid #333;
             color: #666;
             font-size: 0.9em;
-            margin-bottom: 100px; /* 为悬浮分享按钮留空间 */
         }
 
         .about-link {
@@ -823,271 +743,41 @@
         }
 
         @media (max-width: 768px) {
-            body {
-                padding: 0;
-                padding-top: 10px;
-            }
-            
-            .container {
-                padding: 15px;
-                margin: 0;
-                max-width: 100%;
-                box-sizing: border-box;
+            .categories {
+                grid-template-columns: 1fr;
             }
             
             .results {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-                padding: 10px;
-            }
-            
-            .results-spacer {
-                height: 180px;
-            }
-            
-            .result-card {
-                padding: 10px 8px;
-                min-height: 70px;
-            }
-            
-            .result-value {
-                font-size: 1.6em;
-            }
-            
-            #health-level {
-                font-size: 1.1em !important;
-            }
-            
-            .result-label {
-                font-size: 0.8em;
-                margin-top: 4px;
-                gap: 4px;
-            }
-            
-            .level-description {
-                font-size: 0.7em;
-                margin-top: 2px;
-            }
-            
-            .share-container {
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                z-index: 101;
-            }
-            
-            .share-btn {
-                padding: 15px 25px;
-                font-size: 1em;
-                border-radius: 25px;
-                box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4);
-            }
-            
-            .categories {
                 grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .category {
-                padding: 15px;
-                margin: 0;
-                border-radius: 8px;
-                overflow: hidden;
             }
             
             .header h1 {
-                font-size: 1.6em;
-                line-height: 1.2;
-                margin-bottom: 8px;
-            }
-            
-            .header .subtitle {
-                font-size: 0.9em;
-            }
-            
-            .header {
-                margin-bottom: 20px;
-                padding-bottom: 15px;
-            }
-            
-            .action-item {
-                margin-bottom: 20px;
-                padding: 12px;
-            }
-            
-            .action-controls {
-                flex-direction: column;
-                gap: 10px;
-                margin-top: 10px;
-            }
-            
-            .slider {
-                width: 100%;
-                height: 12px;
-                margin: 10px 0;
-            }
-            
-            .slider::-webkit-slider-thumb {
-                width: 28px;
-                height: 28px;
-                margin-top: -10px;
-            }
-            
-            .slider::-moz-range-thumb {
-                width: 28px;
-                height: 28px;
-                border: 2px solid #00ff00;
-                background: #00ff00;
-            }
-            
-            .frequency-label {
-                min-width: auto;
-                width: 100%;
-                text-align: center;
-                font-size: 1em;
-                padding: 8px;
-                background: rgba(0, 255, 0, 0.1);
-                border-radius: 4px;
-                border: 1px solid rgba(0, 255, 0, 0.3);
-            }
-            
-            .action-name {
-                font-size: 1.1em;
-                flex-wrap: wrap;
-            }
-            
-            .action-benefit {
-                font-size: 1em;
-                margin-left: 0;
-                margin-top: 5px;
-            }
-            
-            .action-description {
-                font-size: 0.9em;
-                line-height: 1.5;
-            }
-            
-            .tooltip-content {
-                font-size: 0.75em;
-                padding: 10px;
-            }
-            
-            .reference-tooltip {
-                width: 300px;
-                font-size: 0.75em;
-                padding: 10px;
-            }
-            
-            .achievement {
-                position: fixed;
-                bottom: 100px;
-                left: 50%;
-                transform: translateX(-50%) translateY(120px);
-                padding: 10px 16px;
-                font-size: 0.85em;
-                max-width: 280px;
-                border-radius: 20px;
-            }
-            
-            .achievement.show {
-                transform: translateX(-50%) translateY(0);
-            }
-            
-            .share-card {
-                margin: 5px;
-                padding: 15px;
-                max-width: calc(100vw - 30px);
-                max-height: calc(100vh - 40px);
-                overflow-y: auto;
-            }
-            
-            .share-footer-new .link {
-                font-size: 0.8em;
-                padding: 6px 10px;
-                margin-top: 15px;
-                word-break: break-all;
-            }
-            
-            .share-stats-new {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .share-buttons {
-                flex-direction: column;
-                align-items: center;
-                gap: 15px;
-            }
-            
-            .share-platform-btn {
-                width: 100%;
-                max-width: 250px;
-                padding: 12px 20px;
-                font-size: 1em;
-            }
-            
-            .footer-info {
-                margin-top: 20px;
-                padding: 15px;
-                font-size: 0.85em;
-                margin-bottom: 100px; /* 为悬浮按钮留空间 */
-            }
-        }
-        
-        /* 增强触摸体验 */
-        @media (hover: none) and (pointer: coarse) {
-            .slider::-webkit-slider-thumb {
-                width: 32px;
-                height: 32px;
-                margin-top: -12px;
-            }
-            
-            .slider::-moz-range-thumb {
-                width: 32px;
-                height: 32px;
-            }
-            
-            .tooltip-icon,
-            .reference-icon {
-                font-size: 1.2em;
-                padding: 8px;
-                margin: -8px;
-            }
-            
-            .action-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            
-            .action-name {
-                width: 100%;
-            }
-            
-            .action-benefit {
-                align-self: flex-start;
-            }
-            
-            .share-btn {
-                padding: 15px 20px;
-                font-size: 1em;
+                font-size: 2em;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="header">
+            <h1>🧬 程序员延寿计算器 💻</h1>
+            <div class="subtitle">
+                基于科学研究的生命值优化工具<br>
+                <span class="code-style">while(alive) { optimize_health(); }</span>
+            </div>
+        </div>
+
         <div class="results">
             <div class="result-card">
                 <div class="result-value" id="acm-reduction">0%</div>
                 <div class="result-label">
-                    生存优势提升
-                    <span class="tooltip-icon" tabindex="0">❓</span>
-                    <div class="tooltip-content">
-                        <strong>生存优势 (Survival Advantage)</strong><br>
-                        通过健康生活方式获得的生存能力提升。基于全因死亡率(ACM)降低计算，反映总体健康风险的改善程度。例如：10%的生存优势表示生存能力相对提升10%。
-                    </div>
+                    全因死亡率降低
+                    <span class="tooltip-icon" tabindex="0">❓
+                        <div class="tooltip">
+                            <strong>全因死亡率 (All-Cause Mortality, ACM)</strong><br>
+                            指在特定时间内，因任何原因导致的死亡率。ACM降低意味着总体死亡风险下降，是衡量健康干预效果的重要指标。例如：10%的ACM降低表示死亡风险相对减少10%。
+                        </div>
+                    </span>
                 </div>
             </div>
             <div class="result-card">
@@ -1098,11 +788,12 @@
                 <div class="result-value" id="health-score">0</div>
                 <div class="result-label">
                     健康评分
-                    <span class="tooltip-icon" tabindex="0">❓</span>
-                    <div class="tooltip-content">
-                        <strong>健康评分计算方式</strong><br>
-                        基于您选择的健康行为计算：评分 = ACM降低% × 2 + 行为数量 × 10。分数越高表示健康水平越好，最高1000分。这是一个综合评估您当前生活方式健康程度的指标。
-                    </div>
+                    <span class="tooltip-icon" tabindex="0">❓
+                        <div class="tooltip">
+                            <strong>健康评分计算方式</strong><br>
+                            基于您选择的健康行为计算：评分 = ACM降低% × 2 + 行为数量 × 10。分数越高表示健康水平越好，最高1000分。这是一个综合评估您当前生活方式健康程度的指标。
+                        </div>
+                    </span>
                 </div>
             </div>
             <div class="result-card" id="health-level-card">
@@ -1114,18 +805,8 @@
 
         <div class="share-container">
             <button class="share-btn" onclick="openShareModal()">
-                🚀 分享成果
+                🚀 分享我的健康成果
             </button>
-        </div>
-
-        <div class="results-spacer"></div>
-
-        <div class="header">
-            <h1>🧬 程序员延寿计算器 💻</h1>
-            <div class="subtitle">
-                基于科学研究的生命值优化工具<br>
-                <span class="code-style">while(alive) { optimize_health(); }</span>
-            </div>
         </div>
 
         <div class="warning">
@@ -1582,7 +1263,7 @@
                 <div class="share-stat-new">
                     <div class="icon">🛡️</div>
                     <div class="value" id="share-acm-new">0%</div>
-                    <div class="label">生存优势提升</div>
+                    <div class="label">死亡率降低</div>
                 </div>
                 <div class="share-stat-new">
                     <div class="icon">❤️</div>
@@ -1641,6 +1322,7 @@
                 <div class="share-title-new">// SCAN_TO_SHARE</div>
             </div>
             <div id="qr-code-container">
+                <img src="" alt="QR Code">
                 <p>扫描二维码，分享或查看你的健康数据！</p>
             </div>
         </div>
@@ -1785,7 +1467,6 @@
         function updateResults() {
             let totalACMReduction = 0;
             let actionCount = 0;
-            const benefits = [];
 
             Object.keys(actionData).forEach(action => {
                 const slider = document.querySelector(`[data-action="${action}"]`);
@@ -1793,29 +1474,13 @@
                 const benefit = actionData[action].benefits[value];
                 
                 if (benefit > 0) {
-                    benefits.push(benefit);
+                    totalACMReduction += benefit;
                     actionCount++;
                 }
             });
 
-            // 使用递减效应模型，而不是简单累加
-            if (benefits.length > 0) {
-                // 按效益从大到小排序
-                benefits.sort((a, b) => b - a);
-                
-                // 递减权重计算：第一个100%，第二个80%，第三个60%，以此类推
-                benefits.forEach((benefit, index) => {
-                    const weight = Math.max(0.2, 1 - index * 0.2); // 最低权重20%
-                    totalACMReduction += benefit * weight;
-                });
-            }
-
-            // 使用递减系数的生命延长计算，高ACM值下增长放缓但不会停止
-            const lifeExtension = Math.max(0, 
-                totalACMReduction <= 100 ? 
-                    totalACMReduction * 0.08 : // 0-100%: 每1%增加0.08年
-                    8 + (totalACMReduction - 100) * 0.04 // 100%+: 每1%增加0.04年
-            );
+            const acmRatio = totalACMReduction / 100;
+            const lifeExtension = Math.max(0, (1 / (1 - acmRatio) - 1) * 10);
             
             const healthScore = Math.min(1000, totalACMReduction * 2 + actionCount * 10);
 
@@ -1868,13 +1533,7 @@
 
         function showAchievement(message) {
             const achievement = document.getElementById('achievement');
-            
-            // 提取emoji和文本
-            const emojiMatch = message.match(/^([\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}])/u);
-            let emoji = emojiMatch ? emojiMatch[0] : '🎉';
-            let text = message.replace(emoji, '').trim();
-            
-            achievement.innerHTML = `<span class="achievement-icon">${emoji}</span>${text}`;
+            achievement.textContent = message;
             achievement.classList.add('show');
             
             setTimeout(() => {
@@ -1903,28 +1562,23 @@
             const referenceIcons = document.querySelectorAll('.reference-icon');
             
             tooltipIcons.forEach(icon => {
-                icon.addEventListener('click', function(e) {
+                icon.addEventListener('touchstart', function(e) {
                     e.preventDefault();
-                    e.stopPropagation();
-                    
-                    const resultCard = this.closest('.result-card');
-                    const isExpanded = resultCard.classList.contains('expanded');
-                    
-                    // 收起其他已展开的卡片
-                    document.querySelectorAll('.result-card.expanded').forEach(card => {
-                        if (card !== resultCard) {
-                            card.classList.remove('expanded');
-                        }
+                    tooltipIcons.forEach(other => {
+                        if (other !== this) other.classList.remove('active');
                     });
-                    
-                    // 切换当前卡片的展开状态
-                    resultCard.classList.toggle('expanded');
+                    referenceIcons.forEach(other => other.classList.remove('active'));
+                    this.classList.toggle('active');
                 });
                 
                 icon.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        this.click();
+                        tooltipIcons.forEach(other => {
+                            if (other !== this) other.classList.remove('active');
+                        });
+                        referenceIcons.forEach(other => other.classList.remove('active'));
+                        this.classList.toggle('active');
                     }
                 });
             });
@@ -1936,6 +1590,7 @@
                     referenceIcons.forEach(other => {
                         if (other !== this) other.classList.remove('active');
                     });
+                    tooltipIcons.forEach(other => other.classList.remove('active'));
                     this.classList.toggle('active');
                 });
                 
@@ -1946,20 +1601,15 @@
                         referenceIcons.forEach(other => {
                             if (other !== this) other.classList.remove('active');
                         });
+                        tooltipIcons.forEach(other => other.classList.remove('active'));
                         this.classList.toggle('active');
                     }
                 });
             });
             
-            // 点击页面其他地方时收起所有展开的卡片
             document.addEventListener('click', function(e) {
-                if (!e.target.closest('.result-card')) {
-                    document.querySelectorAll('.result-card.expanded').forEach(card => {
-                        card.classList.remove('expanded');
-                    });
-                }
-                
-                if (!e.target.closest('.reference-icon')) {
+                if (!e.target.closest('.tooltip-icon') && !e.target.closest('.reference-icon')) {
+                    tooltipIcons.forEach(icon => icon.classList.remove('active'));
                     referenceIcons.forEach(icon => icon.classList.remove('active'));
                 }
             });
@@ -1982,47 +1632,44 @@
             document.getElementById('aboutModal').classList.remove('show');
         }
 
-        // 生成超简洁的分享ID
+        // 生成更短的数据编码
         function generateShareId() {
-            return generateCompactShareId();
+            let data = {};
+            Object.keys(actionData).forEach(action => {
+                const slider = document.querySelector(`[data-action="${action}"]`);
+                const value = parseInt(slider.value);
+                if (value > 0) { // 只保存非默认值
+                    data[action] = value;
+                }
+            });
+            
+            // 使用更紧凑的编码方式
+            const compactData = JSON.stringify(data);
+            const encodedData = btoa(compactData).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+            
+            // 生成伪随机ID（基于数据内容）
+            const shareId = generateHashId(compactData);
+            
+            return { shareId, encodedData };
+        }
+        
+        // 生成基于内容的哈希ID
+        function generateHashId(data) {
+            let hash = 0;
+            for (let i = 0; i < data.length; i++) {
+                const char = data.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // 转换为32位整数
+            }
+            return Math.abs(hash).toString(36).substring(0, 6);
         }
 
         function generateQrCode() {
-            const shareId = generateShareId();
-            const shareUrl = `https://buff.meiyongxia.com?s=${shareId}`;
+            const { shareId, encodedData } = generateShareId();
+            const shareUrl = `${window.location.origin}${window.location.pathname}?s=${shareId}&d=${encodedData}`;
             
-            // 清空之前的二维码
-            const qrContainer = document.querySelector('#qr-code-container');
-            const existingQr = qrContainer.querySelector('#qrcode');
-            if (existingQr) {
-                existingQr.remove();
-            }
-            
-            // 创建二维码容器
-            const qrDiv = document.createElement('div');
-            qrDiv.id = 'qrcode';
-            qrDiv.style.display = 'flex';
-            qrDiv.style.justifyContent = 'center';
-            qrDiv.style.marginBottom = '20px';
-            
-            // 使用qrcodejs库生成二维码
-            const qr = new QRCode(qrDiv, {
-                text: shareUrl,
-                width: 300,
-                height: 300,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.M
-            });
-            
-            // 插入二维码到页面
-            const img = qrContainer.querySelector('img');
-            if (img) {
-                img.parentNode.insertBefore(qrDiv, img);
-                img.style.display = 'none';
-            } else {
-                qrContainer.insertBefore(qrDiv, qrContainer.firstChild);
-            }
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(shareUrl)}`;
+            document.querySelector('#qr-code-container img').src = qrApiUrl;
             
             // 更新显示的分享URL
             document.querySelector('#qr-code-container p').innerHTML = `
@@ -2043,22 +1690,36 @@
 
         function loadDataFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
+            
+            // 支持新的格式 ?s=shareId&d=encodedData
             const shareId = urlParams.get('s');
+            const encodedData = urlParams.get('d');
             
-            if (!shareId) return;
+            // 也支持旧的格式 ?data=encodedData
+            const legacyData = urlParams.get('data');
             
-            const dataToLoad = decodeShareId(shareId);
+            let dataToLoad = null;
+            let isSharedData = false;
             
-            if (dataToLoad && Object.keys(dataToLoad).length > 0) {
-                // 重置所有滑块到默认值
-                Object.keys(actionData).forEach(action => {
-                    const slider = document.querySelector(`[data-action="${action}"]`);
-                    if (slider) {
-                        slider.value = 0;
-                    }
-                });
-                
-                // 设置分享的数据
+            if (shareId && encodedData) {
+                try {
+                    // 还原URL安全的base64编码
+                    const restored = encodedData.replace(/-/g, '+').replace(/_/g, '/') + '=='.slice(0, (4 - encodedData.length % 4) % 4);
+                    dataToLoad = JSON.parse(atob(restored));
+                    isSharedData = true;
+                } catch (e) {
+                    console.error("Failed to parse shared data", e);
+                }
+            } else if (legacyData) {
+                try {
+                    dataToLoad = JSON.parse(atob(legacyData));
+                    isSharedData = true;
+                } catch (e) {
+                    console.error("Failed to parse legacy data", e);
+                }
+            }
+            
+            if (dataToLoad) {
                 Object.keys(dataToLoad).forEach(action => {
                     const slider = document.querySelector(`[data-action="${action}"]`);
                     if (slider) {
@@ -2077,7 +1738,10 @@
                 });
                 
                 updateResults();
-                showAchievement("🔗 已加载分享数据");
+                
+                if (isSharedData) {
+                    showAchievement(shareId ? `🔗 已加载分享ID: ${shareId}` : "🧬 已成功加载分享的健康数据！");
+                }
             }
         }
 
@@ -2100,9 +1764,9 @@
             document.getElementById('share-gauge-text').textContent = `${score} / 1000`;
 
             // 更新分享URL显示
-            const shareId = generateShareId();
-            const shareUrl = `https://buff.meiyongxia.com?s=${shareId}`;
-            document.getElementById('share-url-display').textContent = shareUrl;
+            const { shareId } = generateShareId();
+            const shareUrl = `buff.meiyongxia.com?s=${shareId}`;
+            document.getElementById('share-url-display').textContent = `🔗 ${shareUrl}`;
 
             const topHabitsContainer = document.getElementById('share-top-habits-new');
             const habits = [];
@@ -2166,17 +1830,17 @@
             const score = document.getElementById('health-score').textContent;
             const level = getHealthLevel(parseInt(score));
             
-            const shareId = generateShareId();
-            const shareUrl = `https://buff.meiyongxia.com?s=${shareId}`;
+            const { shareId, encodedData } = generateShareId();
+            const shareUrl = `${window.location.origin}${window.location.pathname}?s=${shareId}&d=${encodedData}`;
             
             return `🧬 我通过科学方法延长了${life}年寿命！
-📊 生存优势提升：${acm}
+📊 死亡率降低：${acm}
 🏆 健康等级：${level}
 🔬 基于顶级期刊论文的健康优化
 
 程序员不是只能996，也能健康长寿！
 
-${shareUrl}
+🔗 ${shareUrl}
 #程序员健康 #科学延寿 #健康优化`;
         }
 
@@ -2195,8 +1859,8 @@ ${shareUrl}
         }
 
         function copyShareUrl() {
-            const shareId = generateShareId();
-            const shareUrl = `https://buff.meiyongxia.com?s=${shareId}`;
+            const { shareId, encodedData } = generateShareId();
+            const shareUrl = `${window.location.origin}${window.location.pathname}?s=${shareId}&d=${encodedData}`;
             
             navigator.clipboard.writeText(shareUrl).then(() => {
                 showAchievement("🔗 分享链接已复制到剪贴板！");
@@ -2232,7 +1896,7 @@ ${shareUrl}
             const font = "'Microsoft YaHei', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace";
 
             canvas.width = 800;
-            canvas.height = 1100; // 增加高度以容纳链接
+            canvas.height = 1000;
 
             function drawGlowText(text, x, y, size, color, glowColor, blur) {
                 ctx.font = `${size}px ${font}`;
@@ -2260,21 +1924,14 @@ ${shareUrl}
                 }
             }
 
-            // 生成分享URL
-            const shareId = generateShareId();
-            const shareUrl = `https://buff.meiyongxia.com?s=${shareId}`;
-
-            // 绘制背景
             ctx.fillStyle = '#0D1117';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             drawGrid(20, 'rgba(0, 255, 0, 0.05)');
 
-            // 绘制边框
             ctx.strokeStyle = '#00ff41';
             ctx.lineWidth = 4;
             ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
 
-            // 标题
             ctx.textAlign = 'center';
             drawGlowText('// 健康报告.LOG', canvas.width / 2, 80, 36, '#00ff41', '#00ff41', 15);
             ctx.font = `18px ${font}`;
@@ -2286,16 +1943,14 @@ ${shareUrl}
             ctx.textAlign = 'center';
             ctx.fillText('🏆 我成功hack了自己的生命代码！', canvas.width / 2, 160);
 
-            // 获取数据
             const acm = document.getElementById('acm-reduction').textContent;
             const life = document.getElementById('life-extension').textContent;
             const score = parseInt(document.getElementById('health-score').textContent);
             const level = document.getElementById('health-level').textContent;
             const levelInfo = getHealthLevelInfo(score);
 
-            // 统计数据
             const stats = [
-                { icon: '🛡️', label: '生存优势提升', value: acm },
+                { icon: '🛡️', label: '死亡率降低', value: acm },
                 { icon: '❤️', label: '寿命增加', value: life },
                 { icon: '🏆', label: '健康评分', value: score }
             ];
@@ -2315,11 +1970,9 @@ ${shareUrl}
                 ctx.fillText(stat.label, x, 310);
             });
 
-            // 等级显示
             ctx.textAlign = 'center';
             drawGlowText(level, canvas.width / 2, 390, 40, levelInfo.color, levelInfo.color, 15);
             
-            // 进度条
             const gaugeWidth = 500;
             const gaugeX = (canvas.width - gaugeWidth) / 2;
             const scorePercent = Math.min(score / 1000, 1);
@@ -2343,7 +1996,6 @@ ${shareUrl}
             ctx.textAlign = 'right';
             ctx.fillText(`${score} / 1000`, gaugeX + gaugeWidth - 10, 452);
 
-            // 核心健康习惯
             ctx.textAlign = 'left';
             drawGlowText('// 核心健康习惯', 50, 520, 24, '#00ff41', '#00ff41', 10);
 
@@ -2384,132 +2036,29 @@ ${shareUrl}
                 ctx.textAlign = 'left';
             });
 
-            // 底部信息和二维码区域 - 居中布局
-            const bottomY = canvas.height - 280; // 进一步增加底部空间
-            
             ctx.textAlign = 'center';
             ctx.font = `16px ${font}`;
             ctx.fillStyle = '#888';
-            ctx.fillText('基于顶级期刊论文的健康优化', canvas.width / 2, bottomY);
+            ctx.fillText('基于顶级期刊论文的健康优化', canvas.width / 2, canvas.height - 50);
+            // 生成分享URL并添加到图片中
+            const { shareId, encodedData } = generateShareId();
+            const shareUrl = `buff.meiyongxia.com?s=${shareId}`;
             
-            // 使用qrcodejs库生成二维码
-            const qrSize = 100; // 稍微减小二维码尺寸为链接留更多空间
-            
-            // 创建临时的二维码容器
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
-            tempDiv.style.top = '-9999px';
-            document.body.appendChild(tempDiv);
-            
-            try {
-                const qr = new QRCode(tempDiv, {
-                    text: shareUrl,
-                    width: qrSize,
-                    height: qrSize,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.M
-                });
-                
-                // 等待二维码生成完成
-                setTimeout(() => {
-                    const qrImg = tempDiv.querySelector('img');
-                    if (qrImg && qrImg.complete) {
-                        // 二维码居中显示
-                        const qrX = (canvas.width - qrSize) / 2;
-                        const qrY = bottomY + 40;
-                        
-                        // 绘制二维码背景
-                        ctx.fillStyle = '#fff';
-                        ctx.fillRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
-                        
-                        // 绘制二维码边框
-                        ctx.strokeStyle = '#00ff41';
-                        ctx.lineWidth = 2;
-                        ctx.strokeRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
-                        
-                        // 绘制二维码
-                        ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
-                        
-                        // 在二维码下方居中显示链接，简洁设计
-                        ctx.textAlign = 'center';
-                        ctx.font = `12px ${font}`;
-                        ctx.fillStyle = '#00ff41';
-                        
-                        // 计算链接位置，确保在图片范围内
-                        const linkY = qrY + qrSize + 35;
-                        if (linkY < canvas.height - 40) {
-                            // 如果链接太长，智能截断
-                            const displayUrl = shareUrl.length > 45 ? shareUrl.substring(0, 45) + '...' : shareUrl;
-                            ctx.fillText(displayUrl, canvas.width / 2, linkY);
-                        }
-                        
-                        // 在底部添加Meiyongxia字样
-                        ctx.textAlign = 'center';
-                        ctx.font = `10px ${font}`;
-                        ctx.fillStyle = '#666';
-                        ctx.fillText('Meiyongxia', canvas.width / 2, canvas.height - 15);
-                        
-                        // 清理临时容器
-                        document.body.removeChild(tempDiv);
-                        
-                        // 导出图片
-                        canvas.toBlob(function(blob) {
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `health_report-${new Date().toISOString().slice(0, 10)}.png`;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            URL.revokeObjectURL(url);
-                            showAchievement("📸 健康报告已生成并下载！");
-                        }, 'image/png');
-                    } else {
-                        // 如果二维码生成失败，降级处理
-                        document.body.removeChild(tempDiv);
-                        fallbackExport();
-                    }
-                }, 500);
-                
-            } catch (error) {
-                console.error('QR code generation failed:', error);
-                document.body.removeChild(tempDiv);
-                fallbackExport();
-            }
-            
-            function fallbackExport() {
-                // 降级：不包含二维码的图片，只显示链接
-                ctx.textAlign = 'center';
-                ctx.font = `14px ${font}`;
-                ctx.fillStyle = '#00ff41';
-                
-                const linkY = bottomY + 80;
-                if (linkY < canvas.height - 40) {
-                    // 如果链接太长，智能截断
-                    const displayUrl = shareUrl.length > 60 ? shareUrl.substring(0, 60) + '...' : shareUrl;
-                    ctx.fillText(displayUrl, canvas.width / 2, linkY);
-                }
-                
-                // 在底部添加Meiyongxia字样
-                ctx.textAlign = 'center';
-                ctx.font = `10px ${font}`;
-                ctx.fillStyle = '#666';
-                ctx.fillText('Meiyongxia', canvas.width / 2, canvas.height - 15);
-                
-                canvas.toBlob(function(blob) {
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `health_report-${new Date().toISOString().slice(0, 10)}.png`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    showAchievement("📸 健康报告已生成并下载！");
-                }, 'image/png');
-            }
+            ctx.fillStyle = '#00ff41';
+            ctx.font = `bold 18px ${font}`;
+            ctx.fillText(`🔗 ${shareUrl}`, canvas.width / 2, canvas.height - 25);
+
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `health_report-${new Date().toISOString().slice(0, 10)}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showAchievement("📸 新版健康报告已生成并下载！");
+            }, 'image/png');
         }
 
         document.addEventListener('click', function(e) {
