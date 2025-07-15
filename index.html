@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>程序员延寿计算器 | Programmer Longevity Calculator</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧬</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+            color: #00ff00;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #00ff00;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+        }
+
+        .header .subtitle {
+            color: #888;
+            font-size: 1.1em;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .result-card {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 20px 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .result-card:hover {
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            transform: translateY(-5px);
+        }
+
+        .result-value {
+            font-size: 3em;
+            font-weight: bold;
+            color: #00ff41;
+            text-shadow: 0 0 15px rgba(0, 255, 65, 0.8);
+            line-height: 1.1;
+        }
+
+        #health-level {
+            font-size: 1.8em !important;
+            line-height: 1.2;
+        }
+
+        .result-label {
+            font-size: 1.2em;
+            margin-top: 10px;
+            color: #ccc;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .level-description {
+            font-size: 0.75em;
+            color: #888;
+            margin-top: 5px;
+            font-style: italic;
+            line-height: 1.3;
+        }
+
+        .tooltip-icon {
+            color: #00ff41;
+            cursor: pointer;
+            font-size: 0.9em;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .tooltip-icon:hover {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #00ff00;
+            font-size: 0.85em;
+            line-height: 1.4;
+            width: 300px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #00ff00;
+        }
+
+        .tooltip-icon:hover .tooltip,
+        .tooltip-icon:focus .tooltip,
+        .tooltip-icon.active .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .category {
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            padding: 25px;
+        }
+
+        .category h3 {
+            color: #00ff41;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.6);
+        }
+
+        .action-item {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border-left: 4px solid #00ff00;
+        }
+
+        .action-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .action-name {
+            font-weight: bold;
+            color: #00ff41;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reference-icon {
+            color: #888;
+            cursor: pointer;
+            font-size: 0.8em;
+            user-select: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .reference-icon:hover {
+            color: #00ff41;
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.6);
+        }
+
+        .reference-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #00ff00;
+            font-size: 0.75em;
+            line-height: 1.3;
+            width: 350px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            pointer-events: none;
+            margin-bottom: 12px;
+        }
+
+        .reference-tooltip::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: transparent;
+        }
+
+        .reference-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #00ff00;
+        }
+
+        .reference-icon:hover .reference-tooltip,
+        .reference-icon:focus .reference-tooltip,
+        .reference-icon.active .reference-tooltip {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .reference-tooltip:hover {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .reference-link {
+            color: #00ff41;
+            text-decoration: none;
+            display: block;
+            margin-top: 8px;
+            padding: 4px 8px;
+            border: 1px solid #00ff41;
+            border-radius: 4px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .reference-link:hover {
+            background: #00ff41;
+            color: #000;
+        }
+
+        .action-benefit {
+            color: #ffa500;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        .action-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .slider {
+            flex-grow: 1;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #333;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00ff00;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00ff00;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+
+        .frequency-label {
+            min-width: 120px;
+            text-align: center;
+            color: #ccc;
+            font-size: 0.9em;
+        }
+
+        .action-description {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .achievement {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 215, 0, 0.9);
+            color: #000;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            transform: translateX(400px);
+            transition: transform 0.5s ease;
+            z-index: 1000;
+            border: 2px solid #ffd700;
+        }
+
+        .achievement.show {
+            transform: translateX(0);
+        }
+
+        .warning {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff0000;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #ff6666;
+            text-align: center;
+        }
+
+        .code-style {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #00ff41;
+        }
+
+        .share-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            background: linear-gradient(135deg, #00ff00, #00cc00);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
+            background: linear-gradient(135deg, #00cc00, #00aa00);
+        }
+
+        .share-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .share-modal.show {
+            display: flex;
+        }
+
+        .share-card {
+            font-family: 'Microsoft YaHei', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #0D1117;
+            border: 4px solid #00ff41;
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            background-image: 
+                linear-gradient(rgba(0, 255, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .close-modal:hover {
+            color: #00ff41;
+            transform: rotate(90deg);
+        }
+
+        .share-header-new {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .share-title-new {
+            font-size: 2em;
+            color: #00ff41;
+            text-shadow: 0 0 15px #00ff41;
+            margin-bottom: 10px;
+        }
+
+        .share-subtitle-new {
+            font-size: 1em;
+            color: #888;
+        }
+        
+        .share-inspirational-text {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #00ff41;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .share-stats-new {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .share-stat-new .icon {
+            font-size: 2.5em;
+        }
+        
+        .share-stat-new .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00ff41;
+        }
+
+        .share-stat-new .label {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+
+        .share-level-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        #share-level-display {
+            font-size: 2.2em;
+            font-weight: bold;
+            text-shadow: 0 0 15px currentColor;
+        }
+
+        .share-gauge-container {
+            width: 80%;
+            margin: 15px auto;
+        }
+
+        .share-gauge-background {
+            background: rgba(0, 255, 0, 0.1);
+            height: 20px;
+            border: 1px solid #00ff41;
+        }
+
+        #share-gauge-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #5f27cd, #00d2d3, #00ff41);
+            transition: width 0.5s ease-out;
+        }
+        
+        #share-gauge-text {
+            text-align: right;
+            color: #fff;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .share-habits-container {
+            margin-top: 30px;
+        }
+
+        .share-habits-title {
+            font-size: 1.5em;
+            color: #00ff41;
+            text-shadow: 0 0 10px #00ff41;
+            margin-bottom: 15px;
+        }
+
+        .share-habit-item {
+            background: rgba(0, 255, 0, 0.05);
+            border-left: 4px solid #00ff41;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .share-habit-item .name {
+            font-weight: bold;
+            color: #fff;
+            font-size: 1.1em;
+        }
+        
+        .share-habit-item .level {
+            color: #ccc;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        .share-habit-item .benefit {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ffa500;
+            text-shadow: 0 0 10px #ffa500;
+        }
+
+        .share-footer-new {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+        
+        .share-footer-new p {
+            margin: 5px 0;
+            color: #888;
+            font-size: 0.9em;
+        }
+        
+        .share-footer-new .link {
+            color: #00ff41;
+            font-weight: bold;
+            font-size: 1em;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .share-platform-btn {
+            background: #333;
+            color: #fff;
+            border: 1px solid #00ff41;
+            padding: 10px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .share-platform-btn:hover {
+            background: #00ff41;
+            color: #000;
+            box-shadow: 0 0 15px #00ff41;
+        }
+
+        .footer-info {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 1px solid #333;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .footer-info a {
+            color: #00ff41;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-info a:hover {
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 8px 25px rgba(0, 255, 0, 0.8);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .categories {
+                grid-template-columns: 1fr;
+            }
+            
+            .results {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+
+        .about-link {
+            cursor: pointer;
+            text-decoration: underline;
+            color: #00ff41;
+        }
+        .about-link:hover {
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+        }
+        .about-content {
+            padding: 10px 20px;
+        }
+        .about-content p {
+            color: #ccc;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            line-height: 1.8;
+            text-align: left;
+        }
+        .about-content strong {
+            color: #fff;
+        }
+        .about-content a {
+            color: #00ff41;
+            text-decoration: none;
+            border-bottom: 1px dotted #00ff41;
+            transition: all 0.3s ease;
+        }
+        .about-content a:hover {
+            background: #00ff41;
+            color: #000;
+            border-bottom: 1px solid #00ff41;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧬 程序员延寿计算器 💻</h1>
+            <div class="subtitle">
+                基于科学研究的生命值优化工具<br>
+                <span class="code-style">while(alive) { optimize_health(); }</span>
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="result-card">
+                <div class="result-value" id="acm-reduction">0%</div>
+                <div class="result-label">
+                    全因死亡率降低
+                    <span class="tooltip-icon" tabindex="0">❓
+                        <div class="tooltip">
+                            <strong>全因死亡率 (All-Cause Mortality, ACM)</strong><br>
+                            指在特定时间内，因任何原因导致的死亡率。ACM降低意味着总体死亡风险下降，是衡量健康干预效果的重要指标。例如：10%的ACM降低表示死亡风险相对减少10%。
+                        </div>
+                    </span>
+                </div>
+            </div>
+            <div class="result-card">
+                <div class="result-value" id="life-extension">+0</div>
+                <div class="result-label">预期寿命增加（年）</div>
+            </div>
+            <div class="result-card">
+                <div class="result-value" id="health-score">0</div>
+                <div class="result-label">
+                    健康评分
+                    <span class="tooltip-icon" tabindex="0">❓
+                        <div class="tooltip">
+                            <strong>健康评分计算方式</strong><br>
+                            基于您选择的健康行为计算：评分 = ACM降低% × 2 + 行为数量 × 10。分数越高表示健康水平越好，最高1000分。这是一个综合评估您当前生活方式健康程度的指标。
+                        </div>
+                    </span>
+                </div>
+            </div>
+            <div class="result-card" id="health-level-card">
+                <div class="result-value" id="health-level">🐛 Bug修复中</div>
+                <div class="result-label">当前等级</div>
+                <div class="level-description" id="level-description">生命代码需要debug</div>
+            </div>
+        </div>
+
+        <div class="share-container">
+            <button class="share-btn" onclick="openShareModal()">
+                🚀 分享我的健康成果
+            </button>
+        </div>
+
+        <div class="warning">
+            ⚠️ <strong>免责声明：</strong>本计算器仅供娱乐，不构成医学建议。请咨询专业医生获取健康指导。
+        </div>
+
+        <div class="categories">
+            <div class="category">
+                <h3>🍎 饮食优化 (Diet.optimize())</h3>
+                
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            白肉摄入
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Pan A, et al. Red meat consumption and mortality: results from 2 prospective cohort studies. Arch Intern Med. 2012.
+                                    <a href="https://doi.org/10.1001/archinternmed.2011.2287" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-3% ~ -11% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="7" value="0" data-action="white-meat">
+                        <span class="frequency-label" id="white-meat-label">从不</span>
+                    </div>
+                    <div class="action-description">
+                        用鸡肉、鱼肉替代红肉，降低心血管疾病风险
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            蔬果摄入
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Wang X, et al. Fruit and vegetable consumption and mortality from all causes, cardiovascular disease, and cancer. BMJ. 2014.
+                                    <a href="https://doi.org/10.1136/bmj.g4490" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-17% ~ -26% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="5" value="0" data-action="vegetables-fruits">
+                        <span class="frequency-label" id="vegetables-fruits-label">很少</span>
+                    </div>
+                    <div class="action-description">
+                        每天200g新鲜水果，多吃西兰花等富含黄酮类食物
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            坚果摄入
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Bao Y, et al. Association of nut consumption with total and cause-specific mortality. N Engl J Med. 2013.
+                                    <a href="https://doi.org/10.1056/NEJMoa1307352" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-4% ~ -27% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="7" value="0" data-action="nuts">
+                        <span class="frequency-label" id="nuts-label">从不</span>
+                    </div>
+                    <div class="action-description">
+                        每周5份以上坚果，每份28g，核桃效果最佳
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            辛辣食物
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Lv J, et al. Consumption of spicy foods and total and cause specific mortality: population based cohort study. BMJ. 2015.
+                                    <a href="https://doi.org/10.1136/bmj.h3942" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-23% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="7" value="0" data-action="spicy-food">
+                        <span class="frequency-label" id="spicy-food-label">从不</span>
+                    </div>
+                    <div class="action-description">
+                        每周吃辣>4次，心血管死亡风险降低34%
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            避免超加工食物
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Rico-Campà A, et al. Association between consumption of ultra-processed foods and all cause mortality: SUN prospective cohort study. BMJ. 2019.
+                                    <a href="https://doi.org/10.1136/bmj.l1949" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-18% ~ -62% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="4" value="0" data-action="avoid-processed">
+                        <span class="frequency-label" id="avoid-processed-label">经常吃</span>
+                    </div>
+                    <div class="action-description">
+                        减少薯片、汉堡、方便面等超加工食品摄入
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <h3>🥤 饮品选择 (Drink.select())</h3>
+                
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            咖啡
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Ding M, et al. Association of Coffee Consumption With Total and Cause-Specific Mortality in 3 Large Prospective Cohorts. Circulation. 2015.
+                                    <a href="https://doi.org/10.1161/CIRCULATIONAHA.115.017341" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-12% ~ -22% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="5" value="0" data-action="coffee">
+                        <span class="frequency-label" id="coffee-label">从不</span>
+                    </div>
+                    <div class="action-description">
+                        每天3.5杯最佳，程序员必备生存工具
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            茶
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Li X, et al. Tea consumption and risk of stroke in Chinese adults: a prospective cohort study of 0.5 million men and women. Lancet Public Health. 2020.
+                                    <a href="https://doi.org/10.1016/S2468-2667(19)30227-7" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-8% ~ -15% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="5" value="0" data-action="tea">
+                        <span class="frequency-label" id="tea-label">从不</span>
+                    </div>
+                    <div class="action-description">
+                        每周3次以上，预期寿命增加1.26年
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            牛奶
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Guo J, et al. Milk and dairy consumption and risk of cardiovascular diseases and all-cause mortality: dose-response meta-analysis of prospective cohort studies. Eur J Epidemiol. 2017.
+                                    <a href="https://doi.org/10.1007/s10654-017-0243-1" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-10% ~ -17% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="3" value="0" data-action="milk">
+                        <span class="frequency-label" id="milk-label">从不</span>
+                    </div>
+                    <div class="action-description">
+                        每天2份乳制品，心血管死亡风险下降23%
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            戒酒
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Wood AM, et al. Risk thresholds for alcohol consumption: combined analysis of individual-participant data for 599 912 current drinkers. Lancet. 2018.
+                                    <a href="https://doi.org/10.1016/S0140-6736(18)30134-X" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-50% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="4" value="0" data-action="no-alcohol">
+                        <span class="frequency-label" id="no-alcohol-label">每天喝</span>
+                    </div>
+                    <div class="action-description">
+                        酒精对健康百害无一利，戒酒是最有效的延寿方法之一
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <h3>🏃‍♂️ 运动锻炼 (Exercise.execute())</h3>
+                
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            挥拍运动
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Oja P, et al. Associations of specific types of sports and exercise with all-cause and cardiovascular-disease mortality: a cohort study of 80 306 British adults. Br J Sports Med. 2017.
+                                    <a href="https://doi.org/10.1136/bjsports-2016-096822" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-47% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="5" value="0" data-action="racquet-sports">
+                        <span class="frequency-label" id="racquet-sports-label">从不</span>
+                    </div>
+                    <div class="action-description">
+                        网球、羽毛球、乒乓球，每周3次，每次45-60分钟
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            剧烈运动
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Stamatakis E, et al. Association of wearable device-measured vigorous intermittent lifestyle physical activity with mortality. Nat Med. 2022.
+                                    <a href="https://doi.org/10.1038/s41591-022-02100-x" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-16% ~ -40% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="7" value="0" data-action="vigorous-exercise">
+                        <span class="frequency-label" id="vigorous-exercise-label">从不</span>
+                    </div>
+                    <div class="action-description">
+                        每天8分钟剧烈运动，让心率飙升的那种
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            步行
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Paluch AE, et al. Daily steps and all-cause mortality: a meta-analysis of 15 international cohorts. Lancet Public Health. 2022.
+                                    <a href="https://doi.org/10.1016/S2468-2667(21)00302-9" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-50% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="4" value="0" data-action="walking">
+                        <span class="frequency-label" id="walking-label">&lt;2000步</span>
+                    </div>
+                    <div class="action-description">
+                        每天7000步以上，远离久坐的程序员职业病
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <h3>🌙 生活习惯 (Lifestyle.config())</h3>
+                
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            睡眠质量
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Cappuccio FP, et al. Sleep duration and all-cause mortality: a systematic review and meta-analysis of prospective studies. Sleep. 2010.
+                                    <a href="https://doi.org/10.1093/sleep/33.5.585" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">优化ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="4" value="0" data-action="sleep">
+                        <span class="frequency-label" id="sleep-label">很差</span>
+                    </div>
+                    <div class="action-description">
+                        每天7小时，22-24点入睡最佳，远离熬夜bug
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            刷牙
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Sen S, et al. Periodontal Disease, Regular Dental Care Use, and Incident Ischemic Stroke. Stroke. 2018.
+                                    <a href="https://doi.org/10.1161/STROKEAHA.117.018990" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-25% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="3" value="0" data-action="brush-teeth">
+                        <span class="frequency-label" id="brush-teeth-label">很少</span>
+                    </div>
+                    <div class="action-description">
+                        每天2次，口腔健康影响全身健康
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            晒太阳
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Lindqvist PG, et al. Avoidance of sun exposure as a risk factor for major causes of death: a competing risk analysis of the Melanoma in Southern Sweden cohort. J Intern Med. 2016.
+                                    <a href="https://doi.org/10.1111/joim.12496" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-40% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="4" value="0" data-action="sunlight">
+                        <span class="frequency-label" id="sunlight-label">从不</span>
+                    </div>
+                    <div class="action-description">
+                        适度日照，促进维生素D合成，别当吸血鬼程序员
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            戒烟
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Jha P, et al. 21st-century hazards of smoking and benefits of cessation in the United States. N Engl J Med. 2013.
+                                    <a href="https://doi.org/10.1056/NEJMsa1211128" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-50% ACM +11年</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="4" value="0" data-action="no-smoking">
+                        <span class="frequency-label" id="no-smoking-label">重度吸烟</span>
+                    </div>
+                    <div class="action-description">
+                        吸烟减少11-12年寿命，戒烟是最重要的延寿行动
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-header">
+                        <span class="action-name">
+                            体重管理
+                            <span class="reference-icon" tabindex="0">📊
+                                <div class="reference-tooltip">
+                                    <strong>科学依据：</strong><br>
+                                    Aune D, et al. BMI and all cause mortality: systematic review and non-linear dose-response meta-analysis of 230 cohort studies. BMJ. 2016.
+                                    <a href="https://doi.org/10.1136/bmj.i2156" target="_blank" class="reference-link">🔗 查看文献</a>
+                                </div>
+                            </span>
+                        </span>
+                        <span class="action-benefit">-54% ACM</span>
+                    </div>
+                    <div class="action-controls">
+                        <input type="range" class="slider" min="0" max="4" value="0" data-action="weight-management">
+                        <span class="frequency-label" id="weight-management-label">肥胖</span>
+                    </div>
+                    <div class="action-description">
+                        保持健康BMI，从肥胖到超重的减肥效果最明显
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-info">
+            <p>让代码像生命一样优雅</p>
+            <p>© 2025 Meiyongxia | <span class="about-link" onclick="openAboutModal()">about</span></p>
+        </div>
+    </div>
+
+    <div class="achievement" id="achievement">
+        🎉 成就解锁：健康程序员！
+    </div>
+
+    <!-- About Modal -->
+    <div class="share-modal" id="aboutModal">
+        <div class="share-card">
+            <button class="close-modal" onclick="closeAboutModal()">×</button>
+            <div class="share-header-new">
+                <div class="share-title-new">// ABOUT</div>
+            </div>
+            <div class="about-content">
+                <p><strong>数据:</strong> <a href="https://github.com/geekan/HowToLiveLonger" target="_blank">github.com/geekan/HowToLiveLonger</a></p>
+                <p><strong>联系:</strong> buff@meiyongxia.com</p>
+                <p><strong>打赏:</strong> <a href="https://afdian.com/a/qingxwa" target="_blank">https://afdian.com/a/qingxwa</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分享模态框 -->
+    <div class="share-modal" id="shareModal">
+        <div class="share-card">
+            <button class="close-modal" onclick="closeShareModal()">×</button>
+            
+            <div class="share-header-new">
+                <div class="share-title-new">// 健康报告.LOG</div>
+                <div class="share-subtitle-new">程序员延寿指南</div>
+            </div>
+
+            <div class="share-inspirational-text">🏆 我成功hack了自己的生命代码！</div>
+
+            <div class="share-stats-new">
+                <div class="share-stat-new">
+                    <div class="icon">🛡️</div>
+                    <div class="value" id="share-acm-new">0%</div>
+                    <div class="label">死亡率降低</div>
+                </div>
+                <div class="share-stat-new">
+                    <div class="icon">❤️</div>
+                    <div class="value" id="share-life-new">+0</div>
+                    <div class="label">寿命增加</div>
+                </div>
+                <div class="share-stat-new">
+                    <div class="icon">🏆</div>
+                    <div class="value" id="share-score-new">0</div>
+                    <div class="label">健康评分</div>
+                </div>
+            </div>
+
+            <div class="share-level-container">
+                <div id="share-level-display">🐛 Bug修复中</div>
+                <div class="share-gauge-container">
+                    <div class="share-gauge-background">
+                        <div id="share-gauge-bar"></div>
+                    </div>
+                    <div id="share-gauge-text">0 / 1000</div>
+                </div>
+            </div>
+
+            <div class="share-habits-container">
+                <div class="share-habits-title">// 核心健康习惯</div>
+                <div id="share-top-habits-new"></div>
+            </div>
+
+            <div class="share-footer-new">
+                <p>基于顶级期刊论文的健康优化</p>
+                <p class="link">🔗 buff.meiyongxia.com</p>
+            </div>
+
+            <div class="share-buttons">
+                <button class="share-platform-btn" onclick="shareToWeibo()">
+                    📱 分享到微博
+                </button>
+                <button class="share-platform-btn" onclick="shareToTwitter()">
+                    🐦 分享到Twitter
+                </button>
+                <button class="share-platform-btn" onclick="copyShareText()">
+                    📋 复制文案
+                </button>
+                <button class="share-platform-btn" onclick="generateShareImage()">
+                    📸 生成图片
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const actionData = {
+            'white-meat': {
+                benefits: [0, 1, 2, 3, 5, 7, 9, 11],
+                labels: ['从不', '很少', '偶尔', '一般', '经常', '很多', '主要', '完全替代'],
+                reference: 'Pan A, et al. Red meat consumption and mortality: results from 2 prospective cohort studies. Arch Intern Med. 2012;172(7):555-563.',
+                doi: 'https://doi.org/10.1001/archinternmed.2011.2287'
+            },
+            'vegetables-fruits': {
+                benefits: [0, 5, 10, 15, 20, 26],
+                labels: ['很少', '不够', '一般', '较多', '充足', '丰富'],
+                reference: 'Wang X, et al. Fruit and vegetable consumption and mortality from all causes, cardiovascular disease, and cancer: systematic review and dose-response meta-analysis. BMJ. 2014;349:g4490.',
+                doi: 'https://doi.org/10.1136/bmj.g4490'
+            },
+            'nuts': {
+                benefits: [0, 2, 4, 8, 15, 20, 25, 27],
+                labels: ['从不', '很少', '偶尔', '每周1-2次', '每周3-4次', '每周5-6次', '每天', '每天多次'],
+                reference: 'Bao Y, et al. Association of nut consumption with total and cause-specific mortality. N Engl J Med. 2013;369(21):2001-2011.',
+                doi: 'https://doi.org/10.1056/NEJMoa1307352'
+            },
+            'spicy-food': {
+                benefits: [0, 2, 5, 8, 15, 20, 23, 23],
+                labels: ['从不', '很少', '偶尔', '每周1-2次', '每周3-4次', '每周5+次', '每天', '每天多次'],
+                reference: 'Lv J, et al. Consumption of spicy foods and total and cause specific mortality: population based cohort study. BMJ. 2015;351:h3942.',
+                doi: 'https://doi.org/10.1136/bmj.h3942'
+            },
+            'avoid-processed': {
+                benefits: [0, 10, 25, 40, 62],
+                labels: ['经常吃', '偶尔吃', '很少吃', '基本不吃', '完全避免'],
+                reference: 'Rico-Campà A, et al. Association between consumption of ultra-processed foods and all cause mortality: SUN prospective cohort study. BMJ. 2019;365:l1949.',
+                doi: 'https://doi.org/10.1136/bmj.l1949'
+            },
+            'coffee': {
+                benefits: [0, 5, 10, 15, 20, 22],
+                labels: ['从不', '偶尔', '每天1杯', '每天2杯', '每天3杯', '每天4+杯'],
+                reference: 'Ding M, et al. Association of Coffee Consumption With Total and Cause-Specific Mortality in 3 Large Prospective Cohorts. Circulation. 2015;132(24):2305-2315.',
+                doi: 'https://doi.org/10.1161/CIRCULATIONAHA.115.017341'
+            },
+            'tea': {
+                benefits: [0, 3, 6, 10, 13, 15],
+                labels: ['从不', '偶尔', '每周1-2次', '每周3+次', '每天', '每天多次'],
+                reference: 'Li X, et al. Tea consumption and risk of stroke in Chinese adults: a prospective cohort study of 0.5 million men and women. Lancet Public Health. 2020;5(1):e25-e33.',
+                doi: 'https://doi.org/10.1016/S2468-2667(19)30227-7'
+            },
+            'milk': {
+                benefits: [0, 5, 12, 17],
+                labels: ['从不', '偶尔', '每天1份', '每天2份+'],
+                reference: 'Guo J, et al. Milk and dairy consumption and risk of cardiovascular diseases and all-cause mortality: dose-response meta-analysis of prospective cohort studies. Eur J Epidemiol. 2017;32(4):269-287.',
+                doi: 'https://doi.org/10.1007/s10654-017-0243-1'
+            },
+            'no-alcohol': {
+                benefits: [0, 10, 25, 40, 50],
+                labels: ['每天喝', '经常喝', '偶尔喝', '很少喝', '完全戒酒'],
+                reference: 'Wood AM, et al. Risk thresholds for alcohol consumption: combined analysis of individual-participant data for 599 912 current drinkers. Lancet. 2018;391(10129):1513-1523.',
+                doi: 'https://doi.org/10.1016/S0140-6736(18)30134-X'
+            },
+            'racquet-sports': {
+                benefits: [0, 10, 25, 35, 45, 47],
+                labels: ['从不', '很少', '每月1-2次', '每周1次', '每周2次', '每周3次+'],
+                reference: 'Oja P, et al. Associations of specific types of sports and exercise with all-cause and cardiovascular-disease mortality: a cohort study of 80 306 British adults. Br J Sports Med. 2017;51(10):812-817.',
+                doi: 'https://doi.org/10.1136/bjsports-2016-096822'
+            },
+            'vigorous-exercise': {
+                benefits: [0, 5, 10, 16, 25, 35, 40, 40],
+                labels: ['从不', '很少', '每周1次', '每周2-3次', '每周4-5次', '每周6次', '每天', '每天多次'],
+                reference: 'Stamatakis E, et al. Association of wearable device-measured vigorous intermittent lifestyle physical activity with mortality. Nat Med. 2022;28(12):2521-2529.',
+                doi: 'https://doi.org/10.1038/s41591-022-02100-x'
+            },
+            'walking': {
+                benefits: [0, 10, 25, 40, 50],
+                labels: ['<2000步', '2000-5000步', '5000-7000步', '7000-10000步', '10000步+'],
+                reference: 'Paluch AE, et al. Daily steps and all-cause mortality: a meta-analysis of 15 international cohorts. Lancet Public Health. 2022;7(3):e219-e228.',
+                doi: 'https://doi.org/10.1016/S2468-2667(21)00302-9'
+            },
+            'sleep': {
+                benefits: [0, 5, 10, 15, 20],
+                labels: ['很差(<5h)', '不好(5-6h)', '一般(6-7h)', '良好(7-8h)', '优秀(7-8h规律)'],
+                reference: 'Cappuccio FP, et al. Sleep duration and all-cause mortality: a systematic review and meta-analysis of prospective studies. Sleep. 2010;33(5):585-592.',
+                doi: 'https://doi.org/10.1093/sleep/33.5.585'
+            },
+            'brush-teeth': {
+                benefits: [0, 8, 18, 25],
+                labels: ['很少', '每天1次', '每天2次', '每天2次+漱口水'],
+                reference: 'Sen S, et al. Periodontal Disease, Regular Dental Care Use, and Incident Ischemic Stroke. Stroke. 2018;49(2):355-362.',
+                doi: 'https://doi.org/10.1161/STROKEAHA.117.018990'
+            },
+            'sunlight': {
+                benefits: [0, 10, 20, 30, 40],
+                labels: ['从不', '很少', '偶尔', '经常', '每天适度'],
+                reference: 'Lindqvist PG, et al. Avoidance of sun exposure as a risk factor for major causes of death: a competing risk analysis of the Melanoma in Southern Sweden cohort. J Intern Med. 2016;280(4):375-387.',
+                doi: 'https://doi.org/10.1111/joim.12496'
+            },
+            'no-smoking': {
+                benefits: [0, 10, 25, 40, 50],
+                labels: ['重度吸烟', '轻度吸烟', '偶尔吸烟', '已戒烟', '从不吸烟'],
+                reference: 'Jha P, et al. 21st-century hazards of smoking and benefits of cessation in the United States. N Engl J Med. 2013;368(4):341-350.',
+                doi: 'https://doi.org/10.1056/NEJMsa1211128'
+            },
+            'weight-management': {
+                benefits: [0, 15, 30, 45, 54],
+                labels: ['肥胖', '超重', '正常偏重', '正常', '理想体重'],
+                reference: 'Aune D, et al. BMI and all cause mortality: systematic review and non-linear dose-response meta-analysis of 230 cohort studies. BMJ. 2016;353:i2156.',
+                doi: 'https://doi.org/10.1136/bmj.i2156'
+            }
+        };
+
+        const achievements = [
+            { threshold: 50, message: "🎯 初级健康程序员" },
+            { threshold: 100, message: "🏃‍♂️ 中级生命优化师" },
+            { threshold: 200, message: "💪 高级延寿专家" },
+            { threshold: 300, message: "🧬 传说级长寿黑客" },
+            { threshold: 500, message: "👑 不死程序员成就解锁！" }
+        ];
+
+        const healthLevels = [
+            { minScore: 0, maxScore: 49, level: "🐛 Bug修复中", color: "#ff6b6b", description: "生命代码需要debug" },
+            { minScore: 50, maxScore: 99, level: "🌱 代码小白", color: "#feca57", description: "健康编程入门" },
+            { minScore: 100, maxScore: 199, level: "💻 全栈健康师", color: "#48dbfb", description: "掌握健康技术栈" },
+            { minScore: 200, maxScore: 299, level: "🚀 生命架构师", color: "#ff9ff3", description: "设计人生系统架构" },
+            { minScore: 300, maxScore: 499, level: "🧠 长寿算法大师", color: "#54a0ff", description: "优化生命算法" },
+            { minScore: 500, maxScore: 999, level: "👑 不死代码之神", color: "#5f27cd", description: "传说中的存在" },
+            { minScore: 1000, maxScore: 9999, level: "🌟 永生CTO", color: "#00d2d3", description: "掌控一切生命逻辑" }
+        ];
+
+        function getHealthLevelInfo(score) {
+            for (let level of healthLevels) {
+                if (score >= level.minScore && score <= level.maxScore) {
+                    return level;
+                }
+            }
+            return healthLevels[0]; // 默认返回第一级
+        }
+
+        let lastAchievementIndex = -1;
+        let hasShownSharePrompt = false;
+
+        function updateResults() {
+            let totalACMReduction = 0;
+            let actionCount = 0;
+
+            Object.keys(actionData).forEach(action => {
+                const slider = document.querySelector(`[data-action="${action}"]`);
+                const value = parseInt(slider.value);
+                const benefit = actionData[action].benefits[value];
+                
+                if (benefit > 0) {
+                    totalACMReduction += benefit;
+                    actionCount++;
+                }
+            });
+
+            const acmRatio = totalACMReduction / 100;
+            const lifeExtension = Math.max(0, (1 / (1 - acmRatio) - 1) * 10);
+            
+            const healthScore = Math.min(1000, totalACMReduction * 2 + actionCount * 10);
+
+            const levelInfo = getHealthLevelInfo(healthScore);
+
+            document.getElementById('acm-reduction').textContent = `${totalACMReduction.toFixed(1)}%`;
+            document.getElementById('life-extension').textContent = `+${lifeExtension.toFixed(1)}`;
+            document.getElementById('health-score').textContent = healthScore.toFixed(0);
+            
+            const healthLevelElement = document.getElementById('health-level');
+            const levelDescElement = document.getElementById('level-description');
+            const levelCardElement = document.getElementById('health-level-card');
+            
+            healthLevelElement.textContent = levelInfo.level;
+            healthLevelElement.style.color = levelInfo.color;
+            levelDescElement.textContent = levelInfo.description;
+            levelCardElement.style.borderColor = levelInfo.color;
+            levelCardElement.style.boxShadow = `0 0 20px ${levelInfo.color}40`;
+
+            checkAchievements(healthScore);
+            
+            checkSharePrompt(healthScore);
+        }
+
+        function checkSharePrompt(score) {
+            if (score >= 200 && !hasShownSharePrompt) {
+                hasShownSharePrompt = true;
+                setTimeout(() => {
+                    showAchievement("🎉 太棒了！要不要分享一下你的健康成果？");
+                    setTimeout(() => {
+                        const shareBtn = document.querySelector('.share-btn');
+                        shareBtn.style.animation = 'pulse 2s infinite';
+                        setTimeout(() => {
+                            shareBtn.style.animation = '';
+                        }, 6000);
+                    }, 2000);
+                }, 1000);
+            }
+        }
+
+        function checkAchievements(score) {
+            for (let i = achievements.length - 1; i >= 0; i--) {
+                if (score >= achievements[i].threshold && i > lastAchievementIndex) {
+                    showAchievement(achievements[i].message);
+                    lastAchievementIndex = i;
+                    break;
+                }
+            }
+        }
+
+        function showAchievement(message) {
+            const achievement = document.getElementById('achievement');
+            achievement.textContent = message;
+            achievement.classList.add('show');
+            
+            setTimeout(() => {
+                achievement.classList.remove('show');
+            }, 3000);
+        }
+
+        function initializeSliders() {
+            Object.keys(actionData).forEach(action => {
+                const slider = document.querySelector(`[data-action="${action}"]`);
+                const label = document.getElementById(`${action}-label`);
+                
+                slider.addEventListener('input', function() {
+                    const value = parseInt(this.value);
+                    label.textContent = actionData[action].labels[value];
+                    updateResults();
+                });
+                
+                const initialValue = parseInt(slider.value);
+                label.textContent = actionData[action].labels[initialValue];
+            });
+        }
+
+        function initializeTooltips() {
+            const tooltipIcons = document.querySelectorAll('.tooltip-icon');
+            const referenceIcons = document.querySelectorAll('.reference-icon');
+            
+            tooltipIcons.forEach(icon => {
+                icon.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    tooltipIcons.forEach(other => {
+                        if (other !== this) other.classList.remove('active');
+                    });
+                    referenceIcons.forEach(other => other.classList.remove('active'));
+                    this.classList.toggle('active');
+                });
+                
+                icon.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        tooltipIcons.forEach(other => {
+                            if (other !== this) other.classList.remove('active');
+                        });
+                        referenceIcons.forEach(other => other.classList.remove('active'));
+                        this.classList.toggle('active');
+                    }
+                });
+            });
+            
+            referenceIcons.forEach(icon => {
+                icon.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    referenceIcons.forEach(other => {
+                        if (other !== this) other.classList.remove('active');
+                    });
+                    tooltipIcons.forEach(other => other.classList.remove('active'));
+                    this.classList.toggle('active');
+                });
+                
+                icon.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        referenceIcons.forEach(other => {
+                            if (other !== this) other.classList.remove('active');
+                        });
+                        tooltipIcons.forEach(other => other.classList.remove('active'));
+                        this.classList.toggle('active');
+                    }
+                });
+            });
+            
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.tooltip-icon') && !e.target.closest('.reference-icon')) {
+                    tooltipIcons.forEach(icon => icon.classList.remove('active'));
+                    referenceIcons.forEach(icon => icon.classList.remove('active'));
+                }
+            });
+        }
+
+        function openShareModal() {
+            updateShareData();
+            document.getElementById('shareModal').classList.add('show');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('show');
+        }
+
+        function openAboutModal() {
+            document.getElementById('aboutModal').classList.add('show');
+        }
+
+        function closeAboutModal() {
+            document.getElementById('aboutModal').classList.remove('show');
+        }
+
+        function updateShareData() {
+            const acm = document.getElementById('acm-reduction').textContent;
+            const life = document.getElementById('life-extension').textContent;
+            const score = parseInt(document.getElementById('health-score').textContent);
+            const levelInfo = getHealthLevelInfo(score);
+
+            document.getElementById('share-acm-new').textContent = acm;
+            document.getElementById('share-life-new').textContent = life;
+            document.getElementById('share-score-new').textContent = score;
+
+            const levelDisplay = document.getElementById('share-level-display');
+            levelDisplay.textContent = levelInfo.level;
+            levelDisplay.style.color = levelInfo.color;
+
+            const scorePercent = Math.min(score / 1000, 1) * 100;
+            document.getElementById('share-gauge-bar').style.width = `${scorePercent}%`;
+            document.getElementById('share-gauge-text').textContent = `${score} / 1000`;
+
+            const topHabitsContainer = document.getElementById('share-top-habits-new');
+            const habits = [];
+            Object.keys(actionData).forEach(action => {
+                const slider = document.querySelector(`[data-action="${action}"]`);
+                const value = parseInt(slider.value);
+                const benefit = actionData[action].benefits[value];
+                if (benefit > 0) {
+                    habits.push({
+                        name: getActionDisplayName(action),
+                        benefit: benefit,
+                        level: actionData[action].labels[value]
+                    });
+                }
+            });
+            habits.sort((a, b) => b.benefit - a.benefit);
+            const topHabits = habits.slice(0, 3);
+
+            topHabitsContainer.innerHTML = topHabits.map(habit => `
+                <div class="share-habit-item">
+                    <div>
+                        <span class="name">+ ${habit.name}</span>
+                        <span class="level">- ${habit.level}</span>
+                    </div>
+                    <div class="benefit">-${habit.benefit.toFixed(1)}% ACM</div>
+                </div>
+            `).join('');
+        }
+
+        function getActionDisplayName(action) {
+            const displayNames = {
+                'white-meat': '白肉摄入',
+                'vegetables-fruits': '蔬果摄入',
+                'nuts': '坚果摄入',
+                'spicy-food': '辛辣食物',
+                'avoid-processed': '避免超加工食物',
+                'coffee': '咖啡',
+                'tea': '茶',
+                'milk': '牛奶',
+                'no-alcohol': '戒酒',
+                'racquet-sports': '挥拍运动',
+                'vigorous-exercise': '剧烈运动',
+                'walking': '步行',
+                'sleep': '睡眠质量',
+                'brush-teeth': '刷牙',
+                'sunlight': '晒太阳',
+                'no-smoking': '戒烟',
+                'weight-management': '体重管理'
+            };
+            return displayNames[action] || action;
+        }
+
+        function getHealthLevel(score) {
+            const levelInfo = getHealthLevelInfo(score);
+            return levelInfo.level;
+        }
+
+        function generateShareText() {
+            const acm = document.getElementById('acm-reduction').textContent;
+            const life = document.getElementById('life-extension').textContent;
+            const score = document.getElementById('health-score').textContent;
+            const level = getHealthLevel(parseInt(score));
+            
+            return `🧬 我通过科学方法延长了${life}年寿命！
+📊 死亡率降低：${acm}
+🏆 健康等级：${level}
+🔬 基于顶级期刊论文的健康优化
+
+程序员不是只能996，也能健康长寿！
+
+🔗 测试地址：https://buff.meiyongxia.com
+#程序员健康 #科学延寿 #健康优化`;
+        }
+
+        function shareToWeibo() {
+            const text = generateShareText();
+            const url = 'https://buff.meiyongxia.com';
+            const weiboUrl = `https://service.weibo.com/share/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`;
+            window.open(weiboUrl, '_blank');
+        }
+
+        function shareToTwitter() {
+            const text = generateShareText().replace(/#程序员健康 #科学延寿 #健康优化/, '#ProgrammerHealth #Longevity #HealthOptimization');
+            const url = 'https://buff.meiyongxia.com';
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+            window.open(twitterUrl, '_blank');
+        }
+
+        function copyShareText() {
+            const text = generateShareText();
+            navigator.clipboard.writeText(text).then(() => {
+                showAchievement("📋 分享文案已复制到剪贴板！");
+            }).catch(() => {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showAchievement("📋 分享文案已复制到剪贴板！");
+            });
+        }
+
+        function generateShareImage() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const font = "'Microsoft YaHei', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace";
+
+            canvas.width = 800;
+            canvas.height = 1000;
+
+            function drawGlowText(text, x, y, size, color, glowColor, blur) {
+                ctx.font = `${size}px ${font}`;
+                ctx.shadowColor = glowColor;
+                ctx.shadowBlur = blur;
+                ctx.fillStyle = color;
+                ctx.fillText(text, x, y);
+                ctx.shadowBlur = 0;
+            }
+
+            function drawGrid(step, color) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 0.5;
+                for (let i = 0; i < canvas.width; i += step) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, canvas.height);
+                    ctx.stroke();
+                }
+                for (let j = 0; j < canvas.height; j += step) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, j);
+                    ctx.lineTo(canvas.width, j);
+                    ctx.stroke();
+                }
+            }
+
+            ctx.fillStyle = '#0D1117';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            drawGrid(20, 'rgba(0, 255, 0, 0.05)');
+
+            ctx.strokeStyle = '#00ff41';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+
+            ctx.textAlign = 'center';
+            drawGlowText('// 健康报告.LOG', canvas.width / 2, 80, 36, '#00ff41', '#00ff41', 15);
+            ctx.font = `18px ${font}`;
+            ctx.fillStyle = '#888';
+            ctx.fillText('程序员延寿指南', canvas.width / 2, 120);
+            
+            ctx.fillStyle = '#00ff41';
+            ctx.font = `bold 20px ${font}`;
+            ctx.textAlign = 'center';
+            ctx.fillText('🏆 我成功hack了自己的生命代码！', canvas.width / 2, 160);
+
+            const acm = document.getElementById('acm-reduction').textContent;
+            const life = document.getElementById('life-extension').textContent;
+            const score = parseInt(document.getElementById('health-score').textContent);
+            const level = document.getElementById('health-level').textContent;
+            const levelInfo = getHealthLevelInfo(score);
+
+            const stats = [
+                { icon: '🛡️', label: '死亡率降低', value: acm },
+                { icon: '❤️', label: '寿命增加', value: life },
+                { icon: '🏆', label: '健康评分', value: score }
+            ];
+
+            stats.forEach((stat, index) => {
+                const x = (canvas.width / 3) * (index + 0.5);
+                ctx.font = `48px ${font}`;
+                ctx.fillStyle = '#fff';
+                ctx.fillText(stat.icon, x, 230);
+
+                ctx.font = `bold 36px ${font}`;
+                ctx.fillStyle = '#00ff41';
+                ctx.fillText(stat.value, x, 280);
+
+                ctx.font = `18px ${font}`;
+                ctx.fillStyle = '#ccc';
+                ctx.fillText(stat.label, x, 310);
+            });
+
+            ctx.textAlign = 'center';
+            drawGlowText(level, canvas.width / 2, 390, 40, levelInfo.color, levelInfo.color, 15);
+            
+            const gaugeWidth = 500;
+            const gaugeX = (canvas.width - gaugeWidth) / 2;
+            const scorePercent = Math.min(score / 1000, 1);
+
+            ctx.fillStyle = 'rgba(0, 255, 0, 0.1)';
+            ctx.fillRect(gaugeX, 430, gaugeWidth, 30);
+            
+            const gradient = ctx.createLinearGradient(gaugeX, 0, gaugeX + gaugeWidth, 0);
+            gradient.addColorStop(0, '#5f27cd');
+            gradient.addColorStop(0.5, '#00d2d3');
+            gradient.addColorStop(1, '#00ff41');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(gaugeX, 430, gaugeWidth * scorePercent, 30);
+
+            ctx.strokeStyle = '#00ff41';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(gaugeX, 430, gaugeWidth, 30);
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = `bold 16px ${font}`;
+            ctx.textAlign = 'right';
+            ctx.fillText(`${score} / 1000`, gaugeX + gaugeWidth - 10, 452);
+
+            ctx.textAlign = 'left';
+            drawGlowText('// 核心健康习惯', 50, 520, 24, '#00ff41', '#00ff41', 10);
+
+            const habits = [];
+            Object.keys(actionData).forEach(action => {
+                const slider = document.querySelector(`[data-action="${action}"]`);
+                const value = parseInt(slider.value);
+                const benefit = actionData[action].benefits[value];
+                if (benefit > 0) {
+                    habits.push({
+                        name: getActionDisplayName(action),
+                        benefit: benefit,
+                        level: actionData[action].labels[value]
+                    });
+                }
+            });
+            habits.sort((a, b) => b.benefit - a.benefit);
+            const topHabits = habits.slice(0, 4);
+
+            topHabits.forEach((habit, index) => {
+                const y = 580 + index * 70;
+                ctx.fillStyle = 'rgba(0, 255, 0, 0.05)';
+                ctx.fillRect(50, y - 30, canvas.width - 100, 60);
+                
+                ctx.fillStyle = '#00ff41';
+                ctx.fillRect(50, y - 30, 5, 60);
+
+                ctx.font = `bold 20px ${font}`;
+                ctx.fillStyle = '#fff';
+                ctx.fillText(`+ ${habit.name}`, 70, y);
+
+                ctx.font = `16px ${font}`;
+                ctx.fillStyle = '#ccc';
+                ctx.fillText(`  - ${habit.level}`, 70, y + 25);
+
+                ctx.textAlign = 'right';
+                drawGlowText(`-${habit.benefit.toFixed(1)}% ACM`, canvas.width - 70, y + 10, 24, '#ffa500', '#ffa500', 10);
+                ctx.textAlign = 'left';
+            });
+
+            ctx.textAlign = 'center';
+            ctx.font = `16px ${font}`;
+            ctx.fillStyle = '#888';
+            ctx.fillText('基于顶级期刊论文的健康优化', canvas.width / 2, canvas.height - 50);
+            ctx.fillStyle = '#00ff41';
+            ctx.font = `bold 18px ${font}`;
+            ctx.fillText('🔗 buff.meiyongxia.com', canvas.width / 2, canvas.height - 25);
+
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `health_report-${new Date().toISOString().slice(0, 10)}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showAchievement("📸 新版健康报告已生成并下载！");
+            }, 'image/png');
+        }
+
+        document.addEventListener('click', function(e) {
+            const shareModal = document.getElementById('shareModal');
+            if (e.target === shareModal) {
+                closeShareModal();
+            }
+            const aboutModal = document.getElementById('aboutModal');
+            if (e.target === aboutModal) {
+                closeAboutModal();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSliders();
+            initializeTooltips();
+            updateResults();
+            document.getElementById('copyright-year').textContent = new Date().getFullYear();
+            
+            setTimeout(() => {
+                showAchievement("🚀 欢迎使用程序员延寿计算器！");
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
