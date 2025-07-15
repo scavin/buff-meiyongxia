@@ -2260,8 +2260,10 @@ ${shareUrl}
                 }
             }
 
-            // 使用主页URL
-            const shareUrl = `https://buff.meiyongxia.com`;
+            // 生成分享URL用于二维码，主页URL用于明文显示
+            const shareId = generateShareId();
+            const qrShareUrl = `https://buff.meiyongxia.com?s=${shareId}`;
+            const displayUrl = `https://buff.meiyongxia.com`;
 
             // 绘制背景
             ctx.fillStyle = '#0D1117';
@@ -2403,7 +2405,7 @@ ${shareUrl}
             
             try {
                 const qr = new QRCode(tempDiv, {
-                    text: shareUrl,
+                    text: qrShareUrl,
                     width: qrSize,
                     height: qrSize,
                     colorDark: "#000000",
@@ -2439,7 +2441,7 @@ ${shareUrl}
                         // 计算链接位置，确保在图片范围内
                         const linkY = qrY + qrSize + 25;
                         // 显示主页链接
-                        ctx.fillText(shareUrl, canvas.width / 2, linkY);
+                        ctx.fillText(displayUrl, canvas.width / 2, linkY);
                         
                         // 在底部添加Meiyongxia字样
                         ctx.textAlign = 'center';
@@ -2483,7 +2485,7 @@ ${shareUrl}
                 
                 const linkY = bottomY + 60;
                 // 显示主页链接
-                ctx.fillText(shareUrl, canvas.width / 2, linkY);
+                ctx.fillText(displayUrl, canvas.width / 2, linkY);
                 
                 // 在底部添加Meiyongxia字样
                 ctx.textAlign = 'center';
