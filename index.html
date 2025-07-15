@@ -2433,21 +2433,19 @@ ${shareUrl}
                         
                         // 在二维码下方居中显示链接，简洁设计
                         ctx.textAlign = 'center';
-                        ctx.font = `12px ${font}`;
+                        ctx.font = `14px ${font}`;
                         ctx.fillStyle = '#00ff41';
                         
                         // 计算链接位置，确保在图片范围内
-                        const linkY = qrY + qrSize + 35;
-                        if (linkY < canvas.height - 40) {
-                            // 显示主页链接
-                            ctx.fillText(shareUrl, canvas.width / 2, linkY);
-                        }
+                        const linkY = qrY + qrSize + 25;
+                        // 显示主页链接
+                        ctx.fillText(shareUrl, canvas.width / 2, linkY);
                         
                         // 在底部添加Meiyongxia字样
                         ctx.textAlign = 'center';
                         ctx.font = `10px ${font}`;
                         ctx.fillStyle = '#666';
-                        ctx.fillText('Meiyongxia', canvas.width / 2, canvas.height - 15);
+                        ctx.fillText('Meiyongxia', canvas.width / 2, linkY + 50);
                         
                         // 清理临时容器
                         document.body.removeChild(tempDiv);
@@ -2480,20 +2478,18 @@ ${shareUrl}
             function fallbackExport() {
                 // 降级：不包含二维码的图片，只显示链接
                 ctx.textAlign = 'center';
-                ctx.font = `14px ${font}`;
+                ctx.font = `16px ${font}`;
                 ctx.fillStyle = '#00ff41';
                 
-                const linkY = bottomY + 80;
-                if (linkY < canvas.height - 40) {
-                    // 显示主页链接
-                    ctx.fillText(shareUrl, canvas.width / 2, linkY);
-                }
+                const linkY = bottomY + 60;
+                // 显示主页链接
+                ctx.fillText(shareUrl, canvas.width / 2, linkY);
                 
                 // 在底部添加Meiyongxia字样
                 ctx.textAlign = 'center';
                 ctx.font = `10px ${font}`;
                 ctx.fillStyle = '#666';
-                ctx.fillText('Meiyongxia', canvas.width / 2, canvas.height - 15);
+                ctx.fillText('Meiyongxia', canvas.width / 2, linkY + 50);
                 
                 canvas.toBlob(function(blob) {
                     const url = URL.createObjectURL(blob);
