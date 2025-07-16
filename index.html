@@ -1982,10 +1982,7 @@
             document.getElementById('aboutModal').classList.remove('show');
         }
 
-        // 生成超简洁的分享ID
-        function generateShareId() {
-            return generateCompactShareId();
-        }
+        // 生成超简洁的分享ID - 使用config.js中的版本
 
         function generateQrCode() {
             const shareId = generateShareId();
