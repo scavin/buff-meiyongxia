@@ -57,26 +57,6 @@ cp index.html config.js /var/www/html/
 - **Gzip后**: 18KB  
 - **压缩率**: 82%
 
-#### 自动启用压缩
-项目包含多种平台的配置文件：
-
-- **Apache**: `.htaccess` - 自动启用gzip和缓存
-- **Nginx**: `nginx.conf` - 完整的服务器配置
-- **Vercel**: `vercel.json` - 头部和重定向配置
-- **Netlify**: `netlify.toml` - 压缩和缓存策略
-
-#### 手动压缩HTML
-```bash
-# 运行压缩脚本（可选）
-./compress.sh
-```
-
-### 支持的平台
-- ✅ GitHub Pages
-- ✅ Netlify  
-- ✅ Vercel
-- ✅ 任何静态托管服务
-- ✅ 自建nginx/Apache服务器
 
 ## 技术实现
 
