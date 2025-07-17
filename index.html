@@ -2116,9 +2116,11 @@
                 }
             });
             habits.sort((a, b) => b.benefit - a.benefit);
-            const topHabits = habits.slice(0, 3);
+            
+            // 显示所有有设置的习惯，而不是只显示前3个
+            const allHabits = habits;
 
-            topHabitsContainer.innerHTML = topHabits.map(habit => `
+            topHabitsContainer.innerHTML = allHabits.map(habit => `
                 <div class="share-habit-item">
                     <div>
                         <span class="name">+ ${habit.name}</span>
@@ -2229,8 +2231,7 @@ ${shareUrl}
             const font = "'Microsoft YaHei', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace";
 
             canvas.width = 800;
-            canvas.height = 1300; // 增加高度以容纳更多习惯和链接
-
+            
             function drawGlowText(text, x, y, size, color, glowColor, blur) {
                 ctx.font = `${size}px ${font}`;
                 ctx.shadowColor = glowColor;
@@ -2341,7 +2342,7 @@ ${shareUrl}
             ctx.textAlign = 'right';
             ctx.fillText(`${score} / 1000`, gaugeX + gaugeWidth - 10, 452);
 
-            // 核心健康习惯
+            // 核心健康习惯 - 显示所有有设置的习惯
             ctx.textAlign = 'left';
             drawGlowText('// 核心健康习惯', 50, 520, 24, '#00ff41', '#00ff41', 10);
 
@@ -2359,9 +2360,11 @@ ${shareUrl}
                 }
             });
             habits.sort((a, b) => b.benefit - a.benefit);
-            const topHabits = habits.slice(0, 6);
-
-            topHabits.forEach((habit, index) => {
+            
+            // 显示所有有设置的习惯，而不是只显示前6个
+            const allHabits = habits;
+            
+            allHabits.forEach((habit, index) => {
                 const y = 580 + index * 60;
                 ctx.fillStyle = 'rgba(0, 255, 0, 0.05)';
                 ctx.fillRect(50, y - 30, canvas.width - 100, 60);
@@ -2382,8 +2385,20 @@ ${shareUrl}
                 ctx.textAlign = 'left';
             });
 
+            // 设置最终画布高度
+            canvas.height = dynamicHeight;
+            
+            // 重新绘制背景、网格和边框以匹配新高度
+            ctx.fillStyle = '#0D1117';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            drawGrid(20, 'rgba(0, 255, 0, 0.05)');
+            
+            ctx.strokeStyle = '#00ff41';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+
             // 底部信息和二维码区域 - 居中布局
-            const bottomY = canvas.height - 200; // 调整底部空间
+            const bottomY = dynamicHeight - 200; // 调整底部空间
             
             ctx.textAlign = 'center';
             ctx.font = `16px ${font}`;
