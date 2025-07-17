@@ -2258,10 +2258,38 @@ ${shareUrl}
                 }
             }
 
+            // 收集所有有设置的习惯
+            const habits = [];
+            Object.keys(actionData).forEach(action => {
+                const slider = document.querySelector(`[data-action="${action}"]`);
+                const value = parseInt(slider.value);
+                const benefit = actionData[action].benefits[value];
+                if (benefit > 0) {
+                    habits.push({
+                        name: getActionDisplayName(action),
+                        benefit: benefit,
+                        level: actionData[action].labels[value]
+                    });
+                }
+            });
+            habits.sort((a, b) => b.benefit - a.benefit);
+
+            // 计算动态高度
+            const habitsHeight = Math.max(habits.length, 1) * 60; // 每个习惯60px高度
+            const dynamicHeight = 580 + habitsHeight + 200; // 基础高度 + 习惯高度 + 底部空间
+            canvas.height = dynamicHeight;
+
             // 生成分享URL用于二维码，主页URL用于明文显示
             const shareId = generateShareId();
             const qrShareUrl = `https://buff.meiyongxia.com?s=${shareId}`;
             const displayUrl = `https://buff.meiyongxia.com`;
+
+            // 获取数据
+            const acm = document.getElementById('acm-reduction').textContent;
+            const life = document.getElementById('life-extension').textContent;
+            const score = parseInt(document.getElementById('health-score').textContent);
+            const level = document.getElementById('health-level').textContent;
+            const levelInfo = getHealthLevelInfo(score);
 
             // 绘制背景
             ctx.fillStyle = '#0D1117';
@@ -2284,13 +2312,6 @@ ${shareUrl}
             ctx.font = `bold 20px ${font}`;
             ctx.textAlign = 'center';
             ctx.fillText('🏆 我成功hack了自己的生命代码！', canvas.width / 2, 160);
-
-            // 获取数据
-            const acm = document.getElementById('acm-reduction').textContent;
-            const life = document.getElementById('life-extension').textContent;
-            const score = parseInt(document.getElementById('health-score').textContent);
-            const level = document.getElementById('health-level').textContent;
-            const levelInfo = getHealthLevelInfo(score);
 
             // 统计数据
             const stats = [
@@ -2346,25 +2367,7 @@ ${shareUrl}
             ctx.textAlign = 'left';
             drawGlowText('// 核心健康习惯', 50, 520, 24, '#00ff41', '#00ff41', 10);
 
-            const habits = [];
-            Object.keys(actionData).forEach(action => {
-                const slider = document.querySelector(`[data-action="${action}"]`);
-                const value = parseInt(slider.value);
-                const benefit = actionData[action].benefits[value];
-                if (benefit > 0) {
-                    habits.push({
-                        name: getActionDisplayName(action),
-                        benefit: benefit,
-                        level: actionData[action].labels[value]
-                    });
-                }
-            });
-            habits.sort((a, b) => b.benefit - a.benefit);
-            
-            // 显示所有有设置的习惯，而不是只显示前6个
-            const allHabits = habits;
-            
-            allHabits.forEach((habit, index) => {
+            habits.forEach((habit, index) => {
                 const y = 580 + index * 60;
                 ctx.fillStyle = 'rgba(0, 255, 0, 0.05)';
                 ctx.fillRect(50, y - 30, canvas.width - 100, 60);
@@ -2385,20 +2388,8 @@ ${shareUrl}
                 ctx.textAlign = 'left';
             });
 
-            // 设置最终画布高度
-            canvas.height = dynamicHeight;
-            
-            // 重新绘制背景、网格和边框以匹配新高度
-            ctx.fillStyle = '#0D1117';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            drawGrid(20, 'rgba(0, 255, 0, 0.05)');
-            
-            ctx.strokeStyle = '#00ff41';
-            ctx.lineWidth = 4;
-            ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
-
-            // 底部信息和二维码区域 - 居中布局
-            const bottomY = dynamicHeight - 200; // 调整底部空间
+            // 底部信息和二维码区域
+            const bottomY = dynamicHeight - 120;
             
             ctx.textAlign = 'center';
             ctx.font = `16px ${font}`;
@@ -2406,7 +2397,7 @@ ${shareUrl}
             ctx.fillText('基于顶级期刊论文的健康优化', canvas.width / 2, bottomY);
             
             // 使用qrcodejs库生成二维码
-            const qrSize = 100; // 稍微减小二维码尺寸为链接留更多空间
+            const qrSize = 100;
             
             // 创建临时的二维码容器
             const tempDiv = document.createElement('div');
@@ -2431,7 +2422,7 @@ ${shareUrl}
                     if (qrImg && qrImg.complete) {
                         // 二维码居中显示
                         const qrX = (canvas.width - qrSize) / 2;
-                        const qrY = bottomY + 40;
+                        const qrY = bottomY + 20;
                         
                         // 绘制二维码背景
                         ctx.fillStyle = '#fff';
@@ -2445,21 +2436,19 @@ ${shareUrl}
                         // 绘制二维码
                         ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
                         
-                        // 在二维码下方居中显示链接，简洁设计
+                        // 在二维码下方居中显示链接
                         ctx.textAlign = 'center';
                         ctx.font = `14px ${font}`;
                         ctx.fillStyle = '#00ff41';
                         
-                        // 计算链接位置，确保在图片范围内
                         const linkY = qrY + qrSize + 25;
-                        // 显示主页链接
                         ctx.fillText(displayUrl, canvas.width / 2, linkY);
                         
                         // 在底部添加Meiyongxia字样
                         ctx.textAlign = 'center';
                         ctx.font = `10px ${font}`;
                         ctx.fillStyle = '#666';
-                        ctx.fillText('Meiyongxia', canvas.width / 2, linkY + 50);
+                        ctx.fillText('Meiyongxia', canvas.width / 2, linkY + 20);
                         
                         // 清理临时容器
                         document.body.removeChild(tempDiv);
@@ -2477,7 +2466,6 @@ ${shareUrl}
                             showAchievement("📸 健康报告已生成并下载！");
                         }, 'image/png');
                     } else {
-                        // 如果二维码生成失败，降级处理
                         document.body.removeChild(tempDiv);
                         fallbackExport();
                     }
@@ -2495,15 +2483,14 @@ ${shareUrl}
                 ctx.font = `16px ${font}`;
                 ctx.fillStyle = '#00ff41';
                 
-                const linkY = bottomY + 60;
-                // 显示主页链接
+                const linkY = bottomY + 40;
                 ctx.fillText(displayUrl, canvas.width / 2, linkY);
                 
                 // 在底部添加Meiyongxia字样
                 ctx.textAlign = 'center';
                 ctx.font = `10px ${font}`;
                 ctx.fillStyle = '#666';
-                ctx.fillText('Meiyongxia', canvas.width / 2, linkY + 50);
+                ctx.fillText('Meiyongxia', canvas.width / 2, linkY + 20);
                 
                 canvas.toBlob(function(blob) {
                     const url = URL.createObjectURL(blob);
