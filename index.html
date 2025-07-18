@@ -2276,7 +2276,7 @@ ${shareUrl}
 
             // 计算动态高度
             const habitsHeight = Math.max(habits.length, 1) * 60; // 每个习惯60px高度
-            const dynamicHeight = 580 + habitsHeight + 200; // 基础高度 + 习惯高度 + 底部空间
+            const dynamicHeight = 580 + habitsHeight + 250; // 基础高度 + 习惯高度 + 底部空间（增加50px确保URL可见）
             canvas.height = dynamicHeight;
 
             // 生成分享URL用于二维码，主页URL用于明文显示
@@ -2389,7 +2389,7 @@ ${shareUrl}
             });
 
             // 底部信息和二维码区域
-            const bottomY = dynamicHeight - 120;
+            const bottomY = dynamicHeight - 150;
             
             ctx.textAlign = 'center';
             ctx.font = `16px ${font}`;
@@ -2438,7 +2438,7 @@ ${shareUrl}
                         
                         // 在二维码下方居中显示链接
                         ctx.textAlign = 'center';
-                        ctx.font = `14px ${font}`;
+                        ctx.font = `bold 16px ${font}`;
                         ctx.fillStyle = '#00ff41';
                         
                         const linkY = qrY + qrSize + 25;
@@ -2480,17 +2480,17 @@ ${shareUrl}
             function fallbackExport() {
                 // 降级：不包含二维码的图片，只显示链接
                 ctx.textAlign = 'center';
-                ctx.font = `16px ${font}`;
+                ctx.font = `bold 20px ${font}`;
                 ctx.fillStyle = '#00ff41';
                 
-                const linkY = bottomY + 40;
+                const linkY = bottomY + 50;
                 ctx.fillText(displayUrl, canvas.width / 2, linkY);
                 
                 // 在底部添加Meiyongxia字样
                 ctx.textAlign = 'center';
-                ctx.font = `10px ${font}`;
+                ctx.font = `12px ${font}`;
                 ctx.fillStyle = '#666';
-                ctx.fillText('Meiyongxia', canvas.width / 2, linkY + 20);
+                ctx.fillText('Meiyongxia', canvas.width / 2, linkY + 25);
                 
                 canvas.toBlob(function(blob) {
                     const url = URL.createObjectURL(blob);
